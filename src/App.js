@@ -1183,18 +1183,56 @@ export default function App() {
                   </p>
 
                   <p>
-                    💰 ₹{order.total}
-                  </p>
+  💰 ₹{order.total}
+</p>
 
-                  <button
-                    onClick={() =>
-                      completeOrder(
-                        order.id
-                      )
-                    }
-                  >
-                    ✅ Order Prepared
-                  </button>
+<h3
+  style={{
+    marginTop: "15px",
+    color: "#ff9800"
+  }}
+>
+  Ordered Items 🍔
+</h3>
+
+{order.items.map((item, index) => (
+
+  <div
+    key={index}
+    style={{
+      background:"#333",
+      padding:"10px",
+      marginTop:"10px",
+      borderRadius:"10px"
+    }}
+  >
+
+    <p>
+      🍽️ {item.name}
+    </p>
+
+    <p>
+      🔢 Quantity:
+      {item.quantity}
+    </p>
+
+    <p>
+      💰 ₹{item.price}
+    </p>
+
+  </div>
+
+))}
+
+<button
+  onClick={() =>
+    completeOrder(
+      order.id
+    )
+  }
+>
+  ✅ Order Prepared
+</button>
 
                 </div>
 
