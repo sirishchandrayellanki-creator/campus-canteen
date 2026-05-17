@@ -429,7 +429,6 @@ export default function App() {
 
   const addToCart = (item) => {
 
-    playSound("/sounds/cart.mp3");
 
     const existing =
       cart.find(
@@ -468,6 +467,8 @@ export default function App() {
   };
 
   const placeOrder = async () => {
+
+    playSound("/sounds/cart.mp3");
 
     if (cart.length === 0) {
 
