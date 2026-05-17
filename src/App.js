@@ -5,9 +5,12 @@ const playSound = (sound) => {
   const audio = new Audio(sound);
   audio.play();
 };
-
+ 
 export default function App() {
 
+  const [showFloatingCart,
+setShowFloatingCart] =
+useState(true);
   const [screen, setScreen] =
     useState("login");
 
@@ -467,6 +470,7 @@ setTimeout(() => {
   };
 
  const addToCart = (item) => {
+  setShowFloatingCart(true);
 
   const existingItem = cart.find(
     (cartItem) => cartItem.name === item.name
@@ -1422,6 +1426,70 @@ setTimeout(() => {
 
       )}
 
+{cart.length > 0 &&
+showFloatingCart && (
+
+  <div className="floating-cart">
+
+    <div className="cart-left">
+
+      <img
+        src={cart[0].image}
+        alt=""
+      />
+
+      <div className="cart-text">
+
+        <h3>
+          {cart[0].name}
+        </h3>
+
+        <p>
+          View Menu ▶
+        </p>
+
+      </div>
+
+    </div>
+
+    <button
+      className="view-cart-btn"
+
+      onClick={() =>
+        setScreen("cart")
+      }
+    >
+
+      View Cart
+
+      <span>
+
+        {
+          cart.reduce(
+            (total, item) =>
+              total + item.quantity,
+            0
+          )
+        } items
+
+      </span>
+
+    </button>
+
+    <button
+      className="close-cart-btn"
+
+      onClick={() =>
+        setShowFloatingCart(false)
+      }
+    >
+
+      ✖
+
+    </button>
+
+  </div>
+)}
     </div>
   );
 }
