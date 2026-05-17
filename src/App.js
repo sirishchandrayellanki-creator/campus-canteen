@@ -32,6 +32,14 @@ useState(true);
   const [orders, setOrders] =
     useState([]);
 
+    const [liveStatus,
+setLiveStatus] =
+useState(
+  localStorage.getItem(
+    "liveStatus"
+  ) || ""
+);
+
   const [paymentMethod, setPaymentMethod] =
     useState("UPI");
 
@@ -881,6 +889,32 @@ setTimeout(() => {
               }
             >
               📦 My Orders
+              {liveStatus && (
+
+  <div
+    style={{
+      background:"#222",
+      padding:"18px",
+      borderRadius:"15px",
+      marginTop:"20px",
+      textAlign:"center"
+    }}
+  >
+
+    <h2>
+      📦 Live Order Status
+    </h2>
+
+    <h1
+      style={{
+        color:"#ff9800"
+      }}
+    >
+      {liveStatus}
+    </h1>
+
+  </div>
+)}
             </button>
 
           </div>
@@ -1406,13 +1440,66 @@ setTimeout(() => {
 ))}
 
 <button
-  onClick={() =>
-    completeOrder(
-      order.id
-    )
-  }
+
+  onClick={() => {
+
+    localStorage.setItem(
+      "liveStatus",
+      "👨‍🍳 Order Prepared"
+    );
+
+    setLiveStatus(
+      "👨‍🍳 Order Prepared"
+    );
+
+  }}
+
 >
-  ✅ Order Prepared
+
+  👨‍🍳 Order Prepared
+
+</button>
+
+<button
+
+  onClick={() => {
+
+    localStorage.setItem(
+      "liveStatus",
+      "🛵 Out For Delivery"
+    );
+
+    setLiveStatus(
+      "🛵 Out For Delivery"
+    );
+
+  }}
+
+>
+
+  🛵 Out For Delivery
+
+</button>
+
+<button
+
+  onClick={() => {
+
+    localStorage.setItem(
+      "liveStatus",
+      "✅ Delivered"
+    );
+
+    setLiveStatus(
+      "✅ Delivered"
+    );
+
+  }}
+
+>
+
+  ✅ Delivered
+
 </button>
 
                 </div>
