@@ -362,9 +362,7 @@ export default function App() {
       JSON.stringify(newUser)
     );
 
-    alert(
-      "Signup Successful 🎉"
-    );
+    
 
     setScreen("menu");
   };
@@ -541,12 +539,8 @@ export default function App() {
       "myOrders",
       JSON.stringify(oldOrders)
     );
-
-    alert(
-      "🎉 Order Placed Successfully\n\n🙏 Thank You For Visiting Our Campus Canteen 🍔🍜"
-    );
-
     setCart([]);
+    setScreen("success");
 
     fetchOrders();
 
@@ -846,6 +840,42 @@ export default function App() {
         </div>
 
       )}
+      {/* SUCCESS PAGE */}
+
+{screen === "success" && (
+
+  <div className="successPage">
+
+    <img
+      src="https://cdn-icons-png.flaticon.com/512/845/845646.png"
+      alt=""
+      className="successImage"
+    />
+
+    <h1>
+      🎉 Order Placed Successfully
+    </h1>
+
+    <p>
+      🙏 Thank You For Visiting
+      Our Campus Canteen
+    </p>
+
+    <h2>
+      🍔🍜 Enjoy Your Meal
+    </h2>
+
+    <button
+      onClick={() =>
+        setScreen("menu")
+      }
+    >
+      Back To Menu
+    </button>
+
+  </div>
+
+)}
 
       {screen === "cart" && (
 
