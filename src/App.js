@@ -37,6 +37,39 @@ export default function App() {
       localStorage.getItem("canteenUPI") ||
       "sirishcanteen@upi"
     );
+    const [adminPassword, setAdminPassword] =
+  useState("");
+    const decreaseQtyMenu = (item) => {
+
+  const existingItem = cart.find(
+    (cartItem) => cartItem.name === item.name
+  );
+
+  if (existingItem.quantity === 1) {
+
+    setCart(
+      cart.filter(
+        (cartItem) =>
+          cartItem.name !== item.name
+      )
+    );
+
+  } else {
+
+    setCart(
+      cart.map((cartItem) =>
+        cartItem.name === item.name
+          ? {
+              ...cartItem,
+              quantity:
+                cartItem.quantity - 1
+            }
+          : cartItem
+      )
+    );
+
+  }
+};
 
   // COMPLETE NEW MENU
   const menu = [
@@ -425,45 +458,38 @@ export default function App() {
     setScreen("login");
   };
 
-  const addToCart = (item) => {
+ const addToCart = (item) => {
 
+  const existingItem = cart.find(
+    (cartItem) => cartItem.name === item.name
+  );
 
-    const existing =
-      cart.find(
-        (c) =>
-          c.name === item.name
-      );
+  if (existingItem) {
 
-    if (existing) {
+    setCart(
+      cart.map((cartItem) =>
+        cartItem.name === item.name
+          ? {
+              ...cartItem,
+              quantity:
+                cartItem.quantity + 1
+            }
+          : cartItem
+      )
+    );
 
-      setCart(
+  } else {
 
-        cart.map((c) =>
+    setCart([
+      ...cart,
+      {
+        ...item,
+        quantity: 1
+      }
+    ]);
 
-          c.name === item.name
-
-            ? {
-                ...c,
-                quantity:
-                  c.quantity + 1
-              }
-
-            : c
-        )
-      );
-
-    } else {
-
-      setCart([
-        ...cart,
-        {
-          ...item,
-          quantity: 1
-        }
-      ]);
-    }
-  };
-
+  }
+};
   const placeOrder = async () => {
 
     playSound("/sounds/cart.mp3");
@@ -571,6 +597,7 @@ export default function App() {
 
     fetchOrders();
   };
+  
 
   return (
 
@@ -594,107 +621,35 @@ export default function App() {
           }
         }}
       >
-        ⚙️
+        
       </div>
 
-      {screen === "login" && (
-  <div className="box">
+   {screen === "adminLogin" && (
 
-    <h1>
-      {isSignup
-        ? "Create Account"
-        : "Login"}
+  <div className="login-container">
+
+    <h1 className="login-title">
+       Admin Login
     </h1>
 
-    {isSignup && (
-      <input
-        type="text"
-        placeholder="Name"
-        value={userName}
-        onChange={(e) =>
-          setUserName(e.target.value)
-        }
-      />
-    )}
-
     <input
-      type="text"
-      placeholder="Phone Number"
-      value={phoneNumber}
+      type="password"
+      placeholder="Enter Admin Password"
+      value={adminPassword}
       onChange={(e) =>
-        setPhoneNumber(
+        setAdminPassword(
           e.target.value
         )
       }
     />
 
-    {isSignup && (
-      <input
-        type="text"
-        placeholder="Hall Ticket"
-        value={hallTicket}
-        onChange={(e) =>
-          setHallTicket(
-            e.target.value
-          )
-        }
-      />
-    )}
-
     <button
-      onClick={() => {
-
-        if (isSignup) {
-
-          signupUser();
-
-        } else {
-
-          loginUser();
-        }
-
-      }}
-    >
-
-      {isSignup
-        ? "Sign Up"
-        : "Login"}
-
-    </button>
-
-    <p
-      style={{
-        marginTop: "15px",
-        cursor: "pointer",
-        color: "#ff9800",
-        fontWeight: "bold"
-      }}
-
-      onClick={() =>
-        setIsSignup(!isSignup)
-      }
-    >
-
-      {isSignup
-        ? "Already Have Account? Login"
-        : "New User? Signup"}
-
-    </p>
-
-    <button
-      style={{
-        marginTop: "20px"
-      }}
+      className="login-btn"
 
       onClick={() => {
-
-        const pass =
-          prompt(
-            "Enter Admin Password"
-          );
 
         if (
-          pass ===
+          adminPassword ===
           "canteen123"
         ) {
 
@@ -710,7 +665,136 @@ export default function App() {
       }}
     >
 
-      ⚙️ Admin
+      Login
+
+    </button>
+
+    <button
+      className="admin-btn"
+      onClick={() =>
+        setScreen("login")
+      }
+    >
+
+      🔙 Back
+
+    </button>
+
+  </div>
+)}
+
+
+{screen === "login" && (
+
+  <div className="login-container">
+
+    <h1 className="login-heading">
+      {isSignup
+        ? "Create Account"
+        : "Login"}
+    </h1>
+
+    {isSignup && (
+
+      <input
+        className="login-input"
+
+        type="text"
+        placeholder="Name"
+
+        value={userName}
+
+        onChange={(e) =>
+          setUserName(
+            e.target.value
+          )
+        }
+      />
+    )}
+
+    <div className="login-row">
+
+      <input
+        className="login-input"
+
+        type="text"
+        placeholder="Phone Number"
+
+        value={phoneNumber}
+
+        onChange={(e) =>
+          setPhoneNumber(
+            e.target.value
+          )
+        }
+      />
+
+      <button
+        className="login-button"
+
+        onClick={() => {
+
+          if (isSignup) {
+
+            signupUser();
+
+          } else {
+
+            loginUser();
+          }
+
+        }}
+      >
+
+        {isSignup
+          ? "Sign Up"
+          : "Login"}
+
+      </button>
+
+    </div>
+
+    {isSignup && (
+
+      <input
+        className="login-input"
+
+        type="text"
+        placeholder="Hall Ticket"
+
+        value={hallTicket}
+
+        onChange={(e) =>
+          setHallTicket(
+            e.target.value
+          )
+        }
+      />
+    )}
+
+    <p
+      className="signup-text"
+
+      onClick={() =>
+        setIsSignup(!isSignup)
+      }
+    >
+
+      {isSignup
+        ? "Already Have Account? Login"
+        : "New User? Signup"}
+
+    </p>
+
+    <button
+      className="admin-big-btn"
+
+      onClick={() =>
+        setScreen("adminLogin")
+      }
+    >
+
+      Admin
 
     </button>
 
@@ -768,7 +852,15 @@ export default function App() {
                 setScreen("cart")
               }
             >
-              🛒 Cart ({cart.length})
+              🛒 Cart (
+  {
+    cart.reduce(
+      (total, item) =>
+        total + item.quantity,
+      0
+    )
+  }
+)
             </button>
 
             <button
@@ -818,13 +910,47 @@ export default function App() {
                       ₹{item.price}
                     </p>
 
-                    <button
-                      onClick={() =>
-                        addToCart(item)
-                      }
-                    >
-                      Add
-                    </button>
+                   {
+  cart.find(
+    (cartItem) => cartItem.name === item.name
+  ) ? (
+
+    <div className="qty-controls">
+
+      <button
+        onClick={() => decreaseQtyMenu(item)}
+      >
+        -
+      </button>
+
+      <span>
+        {
+          cart.find(
+            (cartItem) =>
+              cartItem.name === item.name
+          ).quantity
+        }
+      </span>
+
+      <button
+        onClick={() => addToCart(item)}
+      >
+        +
+      </button>
+
+    </div>
+
+  ) : (
+
+    <button
+      className="add-btn"
+      onClick={() => addToCart(item)}
+    >
+      Add +
+    </button>
+
+  )
+}
 
                   </div>
 
@@ -1249,19 +1375,20 @@ export default function App() {
     }}
   >
 
-    <p>
-      🍽️ {item.name}
-    </p>
+    <img
+  src={item.image}
+  alt={item.name}
+  className="admin-food-image"
+/>
 
-    <p>
-      🔢 Quantity:
-      {item.quantity}
-    </p>
+<p>
+  🍽️ {item.name}
+</p>
 
-    <p>
-      💰 ₹{item.price}
-    </p>
-
+<p>
+  🔢 Quantity:
+  {item.quantity}
+</p>
   </div>
 
 ))}
