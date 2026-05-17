@@ -544,7 +544,6 @@ export default function App() {
 
     fetchOrders();
 
-    setScreen("menu");
   };
 
   const completeOrder = async (id) => {

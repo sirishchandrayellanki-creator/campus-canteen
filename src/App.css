@@ -79,3 +79,17 @@ button {
   cursor: pointer;
   font-weight: bold;
 }
+.successPage{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:20px;
+}
+
+.successImage{
+  width:140px;
+  margin-bottom:20px;
+}
