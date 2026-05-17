@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { supabase } from "./supabase";
+const playSound = (sound) => {
+  const audio = new Audio(sound);
+  audio.play();
+};
 
 export default function App() {
 
@@ -424,6 +428,8 @@ export default function App() {
   };
 
   const addToCart = (item) => {
+
+    playSound("/sounds/cart.mp3");
 
     const existing =
       cart.find(
