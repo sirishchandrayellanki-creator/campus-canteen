@@ -435,7 +435,15 @@ export default function App() {
       foundUser.hallTicket
     );
 
-    setScreen("menu");
+    playSound(
+  "/sounds/welcome.mp3"
+);
+
+setTimeout(() => {
+
+  setScreen("menu");
+
+}, 1000);
   };
 
   const logoutUser = () => {
