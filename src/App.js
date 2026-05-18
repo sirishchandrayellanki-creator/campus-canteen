@@ -40,6 +40,7 @@ useState(
   ) || ""
 );
 
+
   const [paymentMethod, setPaymentMethod] =
     useState("UPI");
 
@@ -50,11 +51,32 @@ useState(
     );
     const [adminPassword, setAdminPassword] =
   useState("");
+  useEffect(() => {
+
+  const interval =
+    setInterval(() => {
+
+      const status =
+        localStorage.getItem(
+          "liveStatus"
+        );
+
+      setLiveStatus(status);
+
+    }, 1000);
+
+  return () =>
+    clearInterval(interval);
+
+}, []);
     const decreaseQtyMenu = (item) => {
 
   const existingItem = cart.find(
-    (cartItem) => cartItem.name === item.name
+    (cartItem) =>
+      cartItem.name === item.name
   );
+
+  if (!existingItem) return;
 
   if (existingItem.quantity === 1) {
 
@@ -80,6 +102,7 @@ useState(
     );
 
   }
+
 };
 
   // COMPLETE NEW MENU
@@ -511,7 +534,7 @@ setTimeout(() => {
   }
 };
   const placeOrder = async () => {
-
+    
     playSound("/sounds/cart.mp3");
 
     if (cart.length === 0) {
@@ -823,186 +846,189 @@ setTimeout(() => {
 
       {screen === "menu" && (
 
-        <div>
+  <div>
 
-          <div
-            style={{
-              textAlign: "center",
-              marginBottom: "30px"
-            }}
-          >
-
-            <h1
-              style={{
-                fontSize: "45px",
-                color: "white"
-              }}
-            >
-              👋 Welcome {userName} 🎉
-            </h1>
-
-            <h2
-              style={{
-                color: "#ff9800",
-                fontSize: "35px"
-              }}
-            >
-              🍔 Campus Canteen 🍜
-            </h2>
-
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              gap: "15px",
-              flexWrap: "wrap",
-              marginBottom: "20px"
-            }}
-          >
-
-            <button
-              onClick={logoutUser}
-            >
-              🚪 Logout
-            </button>
-
-            <button
-              onClick={() =>
-                setScreen("cart")
-              }
-            >
-              🛒 Cart (
-  {
-    cart.reduce(
-      (total, item) =>
-        total + item.quantity,
-      0
-    )
-  }
-)
-            </button>
-
-            <button
-              onClick={() =>
-                setScreen("orders")
-              }
-            >
-              📦 My Orders
-              {liveStatus && (
-
-  <div
-    style={{
-      background:"#222",
-      padding:"18px",
-      borderRadius:"15px",
-      marginTop:"20px",
-      textAlign:"center"
-    }}
-  >
-
-    <h2>
-      📦 Live Order Status
-    </h2>
-
-    <h1
+    <div
       style={{
-        color:"#ff9800"
+        textAlign: "center",
+        marginBottom: "30px"
       }}
     >
-      {liveStatus}
-    </h1>
 
-  </div>
-)}
-            </button>
+      <h1
+        style={{
+          fontSize: "45px",
+          color: "white"
+        }}
+      >
+        👋 Welcome {userName} 🎉
+      </h1>
 
-          </div>
+      <h2
+        style={{
+          color: "#ff9800",
+          fontSize: "35px"
+        }}
+      >
+        🍔 Campus Canteen 🍜
+      </h2>
 
-          {/* NEW CATEGORY MENU */}
+    </div>
 
-          {menu.map((section, index) => (
-
-            <div key={index}>
-
-              <h1
-                style={{
-                  color: "#ff9800",
-                  marginTop: "40px"
-                }}
-              >
-                🍽️ {section.category}
-              </h1>
-
-              <div className="grid">
-
-                {section.items.map((item, i) => (
-
-                  <div
-                    className="card"
-                    key={i}
-                  >
-
-                    <img
-                      src={item.image}
-                      alt=""
-                    />
-
-                    <h2>
-                      {item.name}
-                    </h2>
-
-                    <p>
-                      ₹{item.price}
-                    </p>
-
-                   {
-  cart.find(
-    (cartItem) => cartItem.name === item.name
-  ) ? (
-
-    <div className="qty-controls">
+    <div
+      style={{
+        display: "flex",
+        gap: "15px",
+        flexWrap: "wrap",
+        marginBottom: "20px"
+      }}
+    >
 
       <button
-        onClick={() => decreaseQtyMenu(item)}
+        onClick={logoutUser}
       >
-        -
+        🚪 Logout
       </button>
 
-      <span>
-        {
-          cart.find(
-            (cartItem) =>
-              cartItem.name === item.name
-          ).quantity
+      <button
+        onClick={() =>
+          setScreen("cart")
         }
-      </span>
+      >
+        🛒 Cart (
+        {
+          cart.reduce(
+            (total, item) =>
+              total + item.quantity,
+            0
+          )
+        }
+        )
+      </button>
 
       <button
-        onClick={() => addToCart(item)}
+        onClick={() =>
+          setScreen("orders")
+        }
       >
-        +
+        📦 My Orders
       </button>
 
     </div>
 
-  ) : (
+    {liveStatus && (
 
-    <button
-      className="add-btn"
-      onClick={() => addToCart(item)}
-    >
-      Add +
-    </button>
+      <div
+        style={{
+          background:"#222",
+          padding:"18px",
+          borderRadius:"15px",
+          marginBottom:"25px",
+          textAlign:"center",
+          border:"2px solid orange"
+        }}
+      >
 
-  )
-}
+        <h2>
+          📦 Live Order Status
+        </h2>
+
+        <h1
+          style={{
+            color:"#ff9800"
+          }}
+        >
+          {liveStatus}
+        </h1>
+
+      </div>
+    )}
+
+    {/* NEW CATEGORY MENU */}
+
+    {menu.map((section, index) => (
+
+      <div key={index}>
+
+        <h1
+          style={{
+            color: "#ff9800",
+            marginTop: "40px"
+          }}
+        >
+          🍽️ {section.category}
+        </h1>
+
+        <div className="grid">
+
+          {section.items.map((item, i) => (
+
+            <div
+              className="card"
+              key={i}
+            >
+
+              <img
+                src={item.image}
+                alt=""
+              />
+
+              <h2>
+                {item.name}
+              </h2>
+
+              <p>
+                ₹{item.price}
+              </p>
+
+              {
+                cart.find(
+                  (cartItem) =>
+                    cartItem.name === item.name
+                ) ? (
+
+                  <div className="qty-controls">
+
+                    <button
+                      onClick={() =>
+                        decreaseQtyMenu(item)
+                      }
+                    >
+                      -
+                    </button>
+
+                    <span>
+                      {
+                        cart.find(
+                          (cartItem) =>
+                            cartItem.name === item.name
+                        ).quantity
+                      }
+                    </span>
+
+                    <button
+                      onClick={() =>
+                        addToCart(item)
+                      }
+                    >
+                      +
+                    </button>
 
                   </div>
 
-                ))}
+                ) : (
 
-              </div>
+                  <button
+                    className="add-btn"
+                    onClick={() =>
+                      addToCart(item)
+                    }
+                  >
+                    Add +
+                  </button>
+
+                )
+              }
 
             </div>
 
@@ -1010,7 +1036,13 @@ setTimeout(() => {
 
         </div>
 
-      )}
+      </div>
+
+    ))}
+
+  </div>
+
+)}
       {/* SUCCESS PAGE */}
 
 {screen === "success" && (
@@ -1318,170 +1350,195 @@ setTimeout(() => {
 
       {screen === "admin" && (
 
-        <div>
+  <div className="box">
 
-          <button
-            onClick={adminLogout}
-          >
-            🚪 Admin Logout
-          </button>
+    <button
+      onClick={() =>
+        setScreen("menu")
+      }
+    >
+      🍔 Back To Menu
+    </button>
 
-          <h1>
-            📋 Admin Dashboard
-          </h1>
+    <h1>
+      ⚙️ Admin Panel
+    </h1>
 
-          <div
-            style={{
-              marginBottom: "20px"
-            }}
-          >
+    <div
+      style={{
+        marginTop: "20px"
+      }}
+    >
 
-            <input
-              placeholder="Enter UPI ID"
+      <h2>
+        💳 Change UPI ID
+      </h2>
 
-              value={upiId}
+      <input
+        type="text"
+        value={upiId}
 
-              onChange={(e) =>
-                setUpiId(
-                  e.target.value
-                )
-              }
-            />
+        onChange={(e) =>
+          setUpiId(
+            e.target.value
+          )
+        }
 
-            <button
+        placeholder="Enter New UPI ID"
+      />
 
-              onClick={() => {
+      <button
 
-                localStorage.setItem(
-                  "canteenUPI",
-                  upiId
-                );
+        onClick={() => {
 
-                alert(
-                  "✅ UPI ID Saved"
-                );
+          localStorage.setItem(
+            "canteenUPI",
+            upiId
+          );
+
+          alert(
+            "✅ UPI Updated"
+          );
+
+        }}
+
+      >
+
+        Save UPI
+
+      </button>
+
+    </div>
+
+    <h2
+      style={{
+        marginTop: "40px"
+      }}
+    >
+      📦 Orders
+    </h2>
+
+    {orders.length === 0 && (
+
+      <p>
+        No Orders Yet
+      </p>
+
+    )}
+
+    {orders.map(
+      (order, index) => (
+
+        <div
+          key={index}
+          className="order"
+        >
+
+          <h3>
+            👤 {order.user}
+          </h3>
+
+          <p>
+            📞 {order.phone}
+          </p>
+
+          <p>
+            🎫 {order.hallTicket}
+          </p>
+
+          <p>
+            💳 {order.payment}
+          </p>
+
+          <h3>
+            🍽️ Items
+          </h3>
+
+          {order.items.map(
+            (item, i) => (
+
+              <div
+                key={i}
+                style={{
+                  marginBottom: "20px",
+                  textAlign: "center"
+                }}
+              >
+
+                <img
+                  src={item.image}
+                  alt=""
+                  className="admin-food-image"
+                />
+
+                <p>
+                  🍽️ {item.name}
+                </p>
+
+                <p>
+                  🔢 Quantity:
+                  {item.quantity}
+                </p>
+
+              </div>
+
+            )
+          )}
+
+          
+
+            <div
+              style={{
+                marginTop: "20px",
+                display: "flex",
+                gap: "10px",
+                flexWrap: "wrap"
               }}
-
             >
-              Save UPI
-            </button>
 
-          </div>
+              <button
 
-          {orders.length === 0 ? (
+                onClick={() => {
 
-            <h2>
-              No Orders Yet 📭
-            </h2>
+                  localStorage.setItem(
+                    "liveStatus",
+                    "👨‍🍳 Order Prepared"
+                  );
 
-          ) : (
+                  setLiveStatus(
+                    "👨‍🍳 Order Prepared"
+                  );
 
-            orders.map(
-              (order) => (
+                }}
 
-                <div
-                  className="order"
-                  key={order.id}
-                >
+              >
 
-                  <h2>
-                    {order.customer}
-                  </h2>
+                👨‍🍳 Order Prepared
 
-                  <p>
-                    📱 {order.phone}
-                  </p>
+              </button>
 
-                  <p>
-                    💳 {order.payment}
-                  </p>
+              <button
 
-                  <p>
-  💰 ₹{order.total}
-</p>
+                onClick={() => {
 
-<h3
-  style={{
-    marginTop: "15px",
-    color: "#ff9800"
-  }}
->
-  Ordered Items 🍔
-</h3>
+                  localStorage.setItem(
+                    "liveStatus",
+                    "🛵 Out For Delivery"
+                  );
 
-{order.items.map((item, index) => (
+                  setLiveStatus(
+                    "🛵 Out For Delivery"
+                  );
 
-  <div
-    key={index}
-    style={{
-      background:"#333",
-      padding:"10px",
-      marginTop:"10px",
-      borderRadius:"10px"
-    }}
-  >
+                }}
 
-    <img
-  src={item.image}
-  alt={item.name}
-  className="admin-food-image"
-/>
+              >
 
-<p>
-  🍽️ {item.name}
-</p>
+                🛵 Out For Delivery
 
-<p>
-  🔢 Quantity:
-  {item.quantity}
-</p>
-  </div>
+              </button>
 
-))}
-
-<button
-
-  onClick={() => {
-
-    localStorage.setItem(
-      "liveStatus",
-      "👨‍🍳 Order Prepared"
-    );
-
-    setLiveStatus(
-      "👨‍🍳 Order Prepared"
-    );
-
-  }}
-
->
-
-  👨‍🍳 Order Prepared
-
-</button>
-
-<button
-
-  onClick={() => {
-
-    localStorage.setItem(
-      "liveStatus",
-      "🛵 Out For Delivery"
-    );
-
-    setLiveStatus(
-      "🛵 Out For Delivery"
-    );
-
-  }}
-
->
-
-  🛵 Out For Delivery
-
-</button>
-
-<button
+              <button
 
   onClick={() => {
 
@@ -1492,6 +1549,15 @@ setTimeout(() => {
 
     setLiveStatus(
       "✅ Delivered"
+    );
+
+    const updatedOrders =
+      orders.filter(
+        (_, i) => i !== index
+      );
+
+    setOrders(
+      updatedOrders
     );
 
   }}
@@ -1502,16 +1568,16 @@ setTimeout(() => {
 
 </button>
 
-                </div>
-
-              )
-            )
-
-          )}
+            </div>
+        
 
         </div>
 
-      )}
+      )
+    )}
+
+  </div>
+)}
 
 {cart.length > 0 &&
 showFloatingCart && (
