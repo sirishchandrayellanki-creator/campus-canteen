@@ -56,20 +56,47 @@ setScheduleTime] =
 useState("");
   useEffect(() => {
 
-  const interval =
-    setInterval(() => {
+  const checkSchedule = setInterval(() => {
 
-      const status =
-        localStorage.getItem(
-          "liveStatus"
-        );
+    const savedOrders =
+      JSON.parse(
+        localStorage.getItem("orders")
+      ) || [];
 
-      setLiveStatus(status);
+    const now = new Date();
 
-    }, 1000);
+    savedOrders.forEach((order) => {
+
+      if (
+        order.scheduleTime &&
+        !order.processed
+      ) {
+
+        const orderTime =
+          new Date(order.scheduleTime);
+
+        if (now >= orderTime) {
+
+          order.processed = true;
+          order.status = "Preparing";
+
+        }
+
+      }
+
+    });
+
+    localStorage.setItem(
+      "orders",
+      JSON.stringify(savedOrders)
+    );
+
+    setOrders(savedOrders);
+
+  }, 60000);
 
   return () =>
-    clearInterval(interval);
+    clearInterval(checkSchedule);
 
 }, []);
     const decreaseQtyMenu = (item) => {
@@ -599,15 +626,21 @@ setTimeout(() => {
         )
       ) || [];
 
-    oldOrders.push({
-      items: cart,
-      total,
-      payment: paymentMethod,
-      date,
-      time,
-      scheduleTime:
-  scheduled
-    });
+   oldOrders.push({
+  items: cart,
+  total,
+  payment: paymentMethod,
+  date,
+  time,
+
+  scheduleTime: scheduled,
+
+  status: scheduled
+    ? "Scheduled"
+    : "Preparing",
+
+  processed: false
+});
 
     localStorage.setItem(
       "myOrders",
@@ -1102,6 +1135,7 @@ setTimeout(() => {
             🧾 Bill Summary
           </h1>
 
+          
           {cart.map(
             (item, index) => (
 
@@ -1199,11 +1233,7 @@ setTimeout(() => {
 
             )
           )}
-
-          <h2>
-
-            Total ₹
-            <h2
+<h2
   style={{
     color:"#ff9800"
   }}
@@ -1231,19 +1261,20 @@ setTimeout(() => {
   }}
 />
 
-            {cart.reduce(
+<h2>
 
-              (sum, item) =>
+  Total ₹
 
-                sum +
-                item.price *
-                  item.quantity,
-
-              0
-            )}
-
-          </h2>
-
+  {
+    cart.reduce(
+      (sum, item) =>
+        sum +
+        item.price *
+          item.quantity,
+      0
+    )
+  }
+  </h2>
           <select
             value={paymentMethod}
 
