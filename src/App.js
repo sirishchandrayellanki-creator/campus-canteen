@@ -51,6 +51,9 @@ useState(
     );
     const [adminPassword, setAdminPassword] =
   useState("");
+  const [scheduleTime,
+setScheduleTime] =
+useState("");
   useEffect(() => {
 
   const interval =
@@ -72,11 +75,8 @@ useState(
     const decreaseQtyMenu = (item) => {
 
   const existingItem = cart.find(
-    (cartItem) =>
-      cartItem.name === item.name
+    (cartItem) => cartItem.name === item.name
   );
-
-  if (!existingItem) return;
 
   if (existingItem.quantity === 1) {
 
@@ -102,7 +102,6 @@ useState(
     );
 
   }
-
 };
 
   // COMPLETE NEW MENU
@@ -534,7 +533,7 @@ setTimeout(() => {
   }
 };
   const placeOrder = async () => {
-    
+  
     playSound("/sounds/cart.mp3");
 
     if (cart.length === 0) {
@@ -558,6 +557,9 @@ setTimeout(() => {
 
     const now =
       new Date();
+    const scheduled =
+  scheduleTime ||
+  "Instant Order";
 
     const date =
       now.toLocaleDateString();
@@ -576,7 +578,8 @@ setTimeout(() => {
             total: total,
             items: cart,
             order_date: date,
-            order_time: time
+            order_time: time,
+            schedule_time: scheduled
           }
         ]);
 
@@ -601,7 +604,9 @@ setTimeout(() => {
       total,
       payment: paymentMethod,
       date,
-      time
+      time,
+      scheduleTime:
+  scheduled
     });
 
     localStorage.setItem(
@@ -609,6 +614,7 @@ setTimeout(() => {
       JSON.stringify(oldOrders)
     );
     setCart([]);
+    setScheduleTime("");
     setScreen("success");
 
     fetchOrders();
@@ -1197,6 +1203,33 @@ setTimeout(() => {
           <h2>
 
             Total ₹
+            <h2
+  style={{
+    color:"#ff9800"
+  }}
+>
+  ⏰ Schedule Order
+</h2>
+
+<input
+  type="time"
+
+  value={scheduleTime}
+
+  onChange={(e) =>
+    setScheduleTime(
+      e.target.value
+    )
+  }
+
+  style={{
+    padding:"15px",
+    borderRadius:"12px",
+    fontSize:"20px",
+    marginBottom:"20px",
+    width:"220px"
+  }}
+/>
 
             {cart.reduce(
 
@@ -1449,6 +1482,16 @@ setTimeout(() => {
           <p>
             💳 {order.payment}
           </p>
+
+          <p>
+  ⏰ Scheduled Time:
+  {order.schedule_time}
+</p>
+
+<p>
+  🕒 Order Time:
+  {order.order_time}
+</p>
 
           <h3>
             🍽️ Items
