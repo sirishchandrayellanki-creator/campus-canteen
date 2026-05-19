@@ -1,9 +1,19 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import { supabase } from "./supabase";
+import { auth }from "./firebase";
+
+import {
+
+  RecaptchaVerifier,
+  signInWithPhoneNumber
+
+}
+from "firebase/auth";
 const playSound = (sound) => {
+
   const audio = new Audio(sound);
   audio.play();
+
 };
  
 export default function App() {
@@ -25,6 +35,12 @@ useState(true);
 
   const [hallTicket, setHallTicket] =
     useState("");
+
+  const [otp, setOtp] =
+  useState("");
+
+const [otpSent, setOtpSent] =
+  useState(false);
 
   const [cart, setCart] =
     useState([]);
@@ -54,6 +70,68 @@ useState(
   const [scheduleTime,
 setScheduleTime] =
 useState("");
+const [generatedOtp, setGeneratedOtp] =
+  useState("");
+
+
+const setupRecaptcha = () => {
+
+  window.recaptchaVerifier =
+    new RecaptchaVerifier(
+
+      auth,
+
+      "recaptcha-container",
+
+      {
+
+        size: "invisible"
+
+      }
+
+    );
+
+};
+
+const sendOtp = () => {
+
+  if (phoneNumber === "") {
+
+    alert("Enter Phone Number");
+
+    return;
+  }
+
+  const randomOtp =
+    Math.floor(
+      100000 + Math.random() * 900000
+    );
+
+  setGeneratedOtp(
+    randomOtp.toString()
+  );
+
+  setOtpSent(true);
+
+  alert(
+    "Your OTP is: " + randomOtp
+  );
+};
+
+
+const verifyOtp = () => {
+
+  if (otp === generatedOtp) {
+
+    alert("OTP Verified ✅");
+
+    setScreen("menu");
+
+  } else {
+
+    alert("Wrong OTP ❌");
+  }
+};
   useEffect(() => {
 
   const checkSchedule = setInterval(() => {
@@ -377,25 +455,16 @@ useState("");
 
   }, []);
 
-  const fetchOrders = async () => {
+const fetchOrders = () => {
 
-    const { data, error } =
-      await supabase
-        .from("Orders")
-        .select("*")
-        .order("id", {
-          ascending: false
-        });
+  const savedOrders =
+    JSON.parse(
+      localStorage.getItem("orders")
+    ) || [];
 
-    if (error) {
+  setOrders(savedOrders);
 
-      console.log(error);
-
-      return;
-    }
-
-    setOrders(data || []);
-  };
+};
 
   const signupUser = () => {
 
@@ -456,7 +525,7 @@ useState("");
     );
 
     
-
+alert("Signup Success");
     setScreen("menu");
   };
 
@@ -594,31 +663,31 @@ setTimeout(() => {
     const time =
       now.toLocaleTimeString();
 
-    const { error } =
-      await supabase
-        .from("Orders")
-        .insert([
-          {
-            customer: userName,
-            phone: phoneNumber,
-            payment: paymentMethod,
-            total: total,
-            items: cart,
-            order_date: date,
-            order_time: time,
-            schedule_time: scheduled
-          }
-        ]);
+    const newOrder = {
 
-    if (error) {
+  customer: userName,
+  phone: phoneNumber,
+  payment: paymentMethod,
+  total: total,
+  items: cart,
+  order_date: date,
+  order_time: time,
+  schedule_time: scheduled
 
-      console.log(error);
+};
 
-      alert("❌ Order Failed");
+const savedOrders =
+  JSON.parse(
+    localStorage.getItem("orders")
+  ) || [];
 
-      return;
-    }
+savedOrders.unshift(newOrder);
 
+localStorage.setItem(
+  "orders",
+  JSON.stringify(savedOrders)
+);
+alert("✅ Order Placed");
     const oldOrders =
       JSON.parse(
         localStorage.getItem(
@@ -653,32 +722,30 @@ setTimeout(() => {
     fetchOrders();
 
   };
+const completeOrder = (id) => {
 
-  const completeOrder = async (id) => {
+  const savedOrders =
+    JSON.parse(
+      localStorage.getItem("orders")
+    ) || [];
 
-    const { error } =
-      await supabase
-        .from("Orders")
-        .delete()
-        .eq("id", id);
-
-    if (error) {
-
-      console.log(error);
-
-      alert(
-        "❌ Failed To Complete Order"
-      );
-
-      return;
-    }
-
-    alert(
-      "✅ Order Completed Successfully 🎉"
+  const updatedOrders =
+    savedOrders.filter(
+      (_, index) => index !== id
     );
 
-    fetchOrders();
-  };
+  localStorage.setItem(
+    "orders",
+    JSON.stringify(updatedOrders)
+  );
+
+  setOrders(updatedOrders);
+
+  alert(
+    "✅ Order Completed Successfully 🎉"
+  );
+
+};  
   
 
   return (
@@ -796,45 +863,70 @@ setTimeout(() => {
 
     <div className="login-row">
 
-      <input
-        className="login-input"
+  <input
+    className="login-input"
 
-        type="text"
-        placeholder="Phone Number"
+    type="text"
+    placeholder="Phone Number"
 
-        value={phoneNumber}
+    value={phoneNumber}
 
-        onChange={(e) =>
-          setPhoneNumber(
-            e.target.value
-          )
-        }
-      />
+    onChange={(e) =>
+      setPhoneNumber(
+        e.target.value
+      )
+    }
+  />
 
-      <button
-        className="login-button"
+  {!otpSent ? (
 
-        onClick={() => {
+    <button
+      className="login-button"
 
-          if (isSignup) {
+      onClick={sendOtp}
+    >
 
-            signupUser();
+      Send OTP
 
-          } else {
+    </button>
 
-            loginUser();
-          }
+  ) : (
 
-        }}
-      >
+    <button
+      className="login-button"
 
-        {isSignup
-          ? "Sign Up"
-          : "Login"}
+      onClick={verifyOtp}
+    >
 
-      </button>
+      Verify OTP
 
-    </div>
+    </button>
+
+  )}
+
+</div>
+
+
+{otpSent && (
+
+  <input
+    className="login-input"
+
+    type="text"
+
+    placeholder="Enter OTP"
+
+    value={otp}
+
+    onChange={(e) =>
+      setOtp(
+        e.target.value
+      )
+    }
+  />
+
+)}
+<div id="recaptcha-container"></div> 
 
     {isSignup && (
 
