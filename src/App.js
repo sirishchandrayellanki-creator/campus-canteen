@@ -6,7 +6,9 @@ import "./App.css";
 const playSound = (sound) => {
 
   const audio = new Audio(sound);
-  audio.play();
+  audio.play().catch((err) =>
+  console.log(err)
+);
 
 };
  
@@ -30,11 +32,9 @@ useState(true);
   const [hallTicket, setHallTicket] =
     useState("");
 
-  const [otp, setOtp] =
-  useState("");
+  
 
-const [otpSent, setOtpSent] =
-  useState(false);
+
 
   const [cart, setCart] =
     useState([]);
@@ -64,50 +64,14 @@ useState(
   const [scheduleTime,
 setScheduleTime] =
 useState("");
-const [generatedOtp, setGeneratedOtp] =
-  useState("");
 
 
 
-const sendOtp = () => {
-
-  if (phoneNumber === "") {
-
-    alert("Enter Phone Number");
-
-    return;
-  }
-
-  const randomOtp =
-    Math.floor(
-      100000 + Math.random() * 900000
-    );
-
-  setGeneratedOtp(
-    randomOtp.toString()
-  );
-
-  setOtpSent(true);
-
-  alert(
-    "Your OTP is: " + randomOtp
-  );
-};
 
 
-const verifyOtp = () => {
 
-  if (otp === generatedOtp) {
 
-    alert("OTP Verified ✅");
 
-    setScreen("menu");
-
-  } else {
-
-    alert("Wrong OTP ❌");
-  }
-};
   useEffect(() => {
 
   const checkSchedule = setInterval(() => {
@@ -184,7 +148,96 @@ const verifyOtp = () => {
 
   }
 };
+const handleUserAuth = () => {
 
+  if (
+    phoneNumber.length !== 10
+  ) {
+
+    alert(
+      "Enter Valid Phone Number"
+    );
+
+    return;
+  }
+
+  const users =
+    JSON.parse(
+      localStorage.getItem(
+        "canteenUsers"
+      )
+    ) || [];
+
+  const existingUser =
+    users.find(
+      (u) =>
+        u.phone === phoneNumber
+    );
+
+  // LOGIN
+  if (existingUser) {
+
+    localStorage.setItem(
+      "currentUser",
+      JSON.stringify(existingUser)
+    );
+
+    setUserName(
+      existingUser.name
+    );
+
+   playSound(
+  "/sounds/welcome.mp3"
+);
+
+    setScreen("menu");
+
+  }
+
+  // SIGNUP
+  else {
+
+    if (
+      userName === "" ||
+      hallTicket === ""
+    ) {
+
+      alert(
+        "Fill All Details"
+      );
+
+      return;
+    }
+
+    const newUser = {
+
+      name: userName,
+
+      phone: phoneNumber,
+
+      hallTicket: hallTicket
+
+    };
+
+    users.push(newUser);
+
+    localStorage.setItem(
+      "canteenUsers",
+      JSON.stringify(users)
+    );
+
+    localStorage.setItem(
+      "currentUser",
+      JSON.stringify(newUser)
+    );
+
+  playSound(
+  "/sounds/welcome.mp3"
+);
+
+    setScreen("menu");
+  }
+};
   // COMPLETE NEW MENU
   const menu = [
 
@@ -692,6 +745,7 @@ alert("✅ Order Placed");
         className="login-input"
 
         type="text"
+
         placeholder="Name"
 
         value={userName}
@@ -706,70 +760,33 @@ alert("✅ Order Placed");
 
     <div className="login-row">
 
-  <input
-    className="login-input"
+      <input
+        className="login-input"
 
-    type="text"
-    placeholder="Phone Number"
+        type="text"
 
-    value={phoneNumber}
+        placeholder="Phone Number"
 
-    onChange={(e) =>
-      setPhoneNumber(
-        e.target.value
-      )
-    }
-  />
+        value={phoneNumber}
 
-  {!otpSent ? (
+        onChange={(e) =>
+          setPhoneNumber(
+            e.target.value
+          )
+        }
+      />
 
-    <button
-      className="login-button"
+      <button
+        className="login-button"
 
-      onClick={sendOtp}
-    >
+        onClick={handleUserAuth}
+      >
 
-      Send OTP
+        Continue
 
-    </button>
+      </button>
 
-  ) : (
-
-    <button
-      className="login-button"
-
-      onClick={verifyOtp}
-    >
-
-      Verify OTP
-
-    </button>
-
-  )}
-
-</div>
-
-
-{otpSent && (
-
-  <input
-    className="login-input"
-
-    type="text"
-
-    placeholder="Enter OTP"
-
-    value={otp}
-
-    onChange={(e) =>
-      setOtp(
-        e.target.value
-      )
-    }
-  />
-
-)}
-<div id="recaptcha-container"></div> 
+    </div>
 
     {isSignup && (
 
@@ -777,6 +794,7 @@ alert("✅ Order Placed");
         className="login-input"
 
         type="text"
+
         placeholder="Hall Ticket"
 
         value={hallTicket}
