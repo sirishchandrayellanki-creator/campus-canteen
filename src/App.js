@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-
-
-
+import { supabase }
+from "./supabase";
 const playSound = (sound) => {
 
   const audio = new Audio(sound);
-  audio.play().catch((err) =>
-  console.log(err)
-);
+  audio.volume = 1;
+audio.play().catch(() => {});
 
 };
  
@@ -41,7 +39,9 @@ useState(true);
 
   const [orders, setOrders] =
     useState([]);
-
+const [orderNumber,
+setOrderNumber] =
+useState("");
     const [liveStatus,
 setLiveStatus] =
 useState(
@@ -70,48 +70,74 @@ useState("");
 
 
 
+const fetchOrders =
+async () => {
 
+  const {
+    data,
+    error
+  } = await supabase
+    .from("Orders")
+    .select("*")
+    .order("id", {
+      ascending: false
+    });
+
+  if (error) {
+
+    console.log(error);
+
+    return;
+  }
+
+  setOrders(data || []);
+};
 
   useEffect(() => {
 
-  const checkSchedule = setInterval(() => {
+  fetchOrders();
 
-    const savedOrders =
-      JSON.parse(
-        localStorage.getItem("orders")
-      ) || [];
+  const checkSchedule =
+    setInterval(async () => {
 
-    const now = new Date();
+      const { data } =
+        await supabase
+          .from("Orders")
+          .select("*");
 
-    savedOrders.forEach((order) => {
+      const savedOrders =
+        data || [];
 
-      if (
-        order.scheduleTime &&
-        !order.processed
-      ) {
+      const now = new Date();
 
-        const orderTime =
-          new Date(order.scheduleTime);
+      for (const order of savedOrders) {
 
-        if (now >= orderTime) {
+        if (
+          order.schedule_time &&
+          !order.processed
+        ) {
 
-          order.processed = true;
-          order.status = "Preparing";
+          const orderTime =
+            new Date(
+              order.schedule_time
+            );
 
+          if (now >= orderTime) {
+
+            await supabase
+              .from("Orders")
+              .update({
+                status: "Preparing",
+                processed: true
+              })
+              .eq("id", order.id);
+          }
         }
-
       }
 
-    });
+      fetchOrders();
 
-    localStorage.setItem(
-      "orders",
-      JSON.stringify(savedOrders)
-    );
-
-    setOrders(savedOrders);
-
-  }, 60000);
+    }, 60000);
 
   return () =>
     clearInterval(checkSchedule);
@@ -122,6 +148,8 @@ useState("");
   const existingItem = cart.find(
     (cartItem) => cartItem.name === item.name
   );
+
+  if (!existingItem) return;
 
   if (existingItem.quantity === 1) {
 
@@ -484,16 +512,7 @@ const handleUserAuth = () => {
 
   }, []);
 
-const fetchOrders = () => {
 
-  const savedOrders =
-    JSON.parse(
-      localStorage.getItem("orders")
-    ) || [];
-
-  setOrders(savedOrders);
-
-};
 
  
 
@@ -548,99 +567,99 @@ const fetchOrders = () => {
   }
 };
   const placeOrder = async () => {
-  
-    playSound("/sounds/cart.mp3");
 
-    if (cart.length === 0) {
+  playSound("/sounds/cart.mp3");
 
-      alert("🛒 Cart Empty");
+  if (cart.length === 0) {
 
-      return;
-    }
+    alert("🛒 Cart Empty");
 
-    const total =
-      cart.reduce(
+    return;
+  }
 
-        (sum, item) =>
+  const total =
+    cart.reduce(
 
-          sum +
-          item.price *
-            item.quantity,
+      (sum, item) =>
 
-        0
-      );
+        sum +
+        item.price *
+          item.quantity,
 
-    const now =
-      new Date();
-    const scheduled =
-  scheduleTime ||
-  "Instant Order";
-
-    const date =
-      now.toLocaleDateString();
-
-    const time =
-      now.toLocaleTimeString();
-
-    const newOrder = {
-
-  customer: userName,
-  phone: phoneNumber,
-  payment: paymentMethod,
-  total: total,
-  items: cart,
-  order_date: date,
-  order_time: time,
-  schedule_time: scheduled
-
-};
-
-const savedOrders =
-  JSON.parse(
-    localStorage.getItem("orders")
-  ) || [];
-
-savedOrders.unshift(newOrder);
-
-localStorage.setItem(
-  "orders",
-  JSON.stringify(savedOrders)
-);
-alert("✅ Order Placed");
-    const oldOrders =
-      JSON.parse(
-        localStorage.getItem(
-          "myOrders"
-        )
-      ) || [];
-
-   oldOrders.push({
-  items: cart,
-  total,
-  payment: paymentMethod,
-  date,
-  time,
-
-  scheduleTime: scheduled,
-
-  status: scheduled
-    ? "Scheduled"
-    : "Preparing",
-
-  processed: false
-});
-
-    localStorage.setItem(
-      "myOrders",
-      JSON.stringify(oldOrders)
+      0
     );
-    setCart([]);
-    setScheduleTime("");
-    setScreen("success");
 
-    fetchOrders();
+  const now =
+    new Date();
 
+  const scheduled =
+    scheduleTime ||
+    "Instant Order";
+
+  const orderId =
+    "ORD" +
+    Math.floor(
+      100000 +
+      Math.random() * 900000
+    );
+
+  const newOrder = {
+
+    order_no: orderId,
+
+    customer: userName,
+
+    phone: phoneNumber,
+
+    payment: paymentMethod,
+
+    total: total,
+
+    items: cart,
+
+    status: scheduled ===
+      "Instant Order"
+        ? "Preparing"
+        : "Scheduled",
+
+    processed: false,
+
+    order_date:
+      now.toLocaleDateString(),
+
+    order_time:
+      now.toLocaleTimeString(),
+
+    schedule_time:
+      scheduled
   };
+
+  const { error } =
+    await supabase
+      .from("Orders")
+      .insert([newOrder]);
+
+  if (error) {
+
+    console.log(error);
+
+    alert(
+      JSON.stringify(error)
+    );
+
+    return;
+  }
+
+  setOrderNumber(orderId);
+
+  setCart([]);
+
+  setScheduleTime("");
+
+  setScreen("success");
+
+  fetchOrders();
+};
 
   
 
@@ -1050,10 +1069,19 @@ alert("✅ Order Placed");
     <h1>
       🎉 Order Placed Successfully
     </h1>
+    <h2
+  style={{
+    color: "#ff9800",
+    marginTop: "20px"
+  }}
+>
+  Order No:
+  {orderNumber}
+</h2>
 
     <p>
-      🙏 Thank You For Visiting
-      Our Campus Canteen
+       Thank You For Visiting
+       Campus Canteen
     </p>
 
     <h2>
@@ -1454,10 +1482,14 @@ alert("✅ Order Placed");
           <h3>
             👤 {order.user}
           </h3>
-
-          <p>
-            📞 {order.phone}
-          </p>
+<p>
+  🧾 Order No:
+  {order.order_no}
+</p>
+         <p>
+  📞 Phone:
+  {order.phone}
+</p>
 
           <p>
             🎫 {order.hallTicket}
