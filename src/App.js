@@ -1,14 +1,8 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import { auth }from "./firebase";
 
-import {
 
-  RecaptchaVerifier,
-  signInWithPhoneNumber
 
-}
-from "firebase/auth";
 const playSound = (sound) => {
 
   const audio = new Audio(sound);
@@ -74,24 +68,6 @@ const [generatedOtp, setGeneratedOtp] =
   useState("");
 
 
-const setupRecaptcha = () => {
-
-  window.recaptchaVerifier =
-    new RecaptchaVerifier(
-
-      auth,
-
-      "recaptcha-container",
-
-      {
-
-        size: "invisible"
-
-      }
-
-    );
-
-};
 
 const sendOtp = () => {
 
@@ -466,115 +442,9 @@ const fetchOrders = () => {
 
 };
 
-  const signupUser = () => {
+ 
 
-    if (
-      userName === "" ||
-      phoneNumber === "" ||
-      hallTicket === ""
-    ) {
-
-      alert("Fill All Details");
-
-      return;
-    }
-
-    const users =
-      JSON.parse(
-        localStorage.getItem(
-          "canteenUsers"
-        )
-      ) || [];
-
-    const alreadyExists =
-      users.find(
-        (u) =>
-          u.phone === phoneNumber
-      );
-
-    if (alreadyExists) {
-
-      alert(
-        "User Already Exists. Please Login."
-      );
-
-      setIsSignup(false);
-
-      return;
-    }
-
-    const newUser = {
-
-      name: userName,
-
-      phone: phoneNumber,
-
-      hallTicket: hallTicket
-    };
-
-    users.push(newUser);
-
-    localStorage.setItem(
-      "canteenUsers",
-      JSON.stringify(users)
-    );
-
-    localStorage.setItem(
-      "currentUser",
-      JSON.stringify(newUser)
-    );
-
-    
-alert("Signup Success");
-    setScreen("menu");
-  };
-
-  const loginUser = () => {
-
-    const users =
-      JSON.parse(
-        localStorage.getItem(
-          "canteenUsers"
-        )
-      ) || [];
-
-    const foundUser =
-      users.find(
-        (u) =>
-          u.phone === phoneNumber
-      );
-
-    if (!foundUser) {
-
-      alert(
-        "User Not Found. Please Signup."
-      );
-
-      return;
-    }
-
-    localStorage.setItem(
-      "currentUser",
-      JSON.stringify(foundUser)
-    );
-
-    setUserName(foundUser.name);
-
-    setHallTicket(
-      foundUser.hallTicket
-    );
-
-    playSound(
-  "/sounds/welcome.mp3"
-);
-
-setTimeout(() => {
-
-  setScreen("menu");
-
-}, 1000);
-  };
-
+  
   const logoutUser = () => {
 
     localStorage.removeItem(
@@ -590,11 +460,7 @@ setTimeout(() => {
     setHallTicket("");
   };
 
-  const adminLogout = () => {
-
-    setScreen("login");
-  };
-
+  
  const addToCart = (item) => {
   setShowFloatingCart(true);
 
@@ -722,30 +588,7 @@ alert("✅ Order Placed");
     fetchOrders();
 
   };
-const completeOrder = (id) => {
 
-  const savedOrders =
-    JSON.parse(
-      localStorage.getItem("orders")
-    ) || [];
-
-  const updatedOrders =
-    savedOrders.filter(
-      (_, index) => index !== id
-    );
-
-  localStorage.setItem(
-    "orders",
-    JSON.stringify(updatedOrders)
-  );
-
-  setOrders(updatedOrders);
-
-  alert(
-    "✅ Order Completed Successfully 🎉"
-  );
-
-};  
   
 
   return (
