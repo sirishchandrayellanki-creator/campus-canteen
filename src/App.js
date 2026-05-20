@@ -42,13 +42,7 @@ useState(true);
 const [orderNumber,
 setOrderNumber] =
 useState("");
-    const [liveStatus,
-setLiveStatus] =
-useState(
-  localStorage.getItem(
-    "liveStatus"
-  ) || ""
-);
+    
 
 
   const [paymentMethod, setPaymentMethod] =
@@ -92,10 +86,48 @@ async () => {
 
   setOrders(data || []);
 };
+const updateOrderStatus =
+async (id, status) => {
+
+  const { error } =
+    await supabase
+      .from("Orders")
+      .update({
+        status: status
+      })
+      .eq("id", id);
+
+  if (error) {
+
+    console.log(error);
+
+    return;
+  }
+
+  // DELETE WHEN DELIVERED
+  if (
+    status ===
+    "Delivered"
+  ) {
+
+    await supabase
+      .from("Orders")
+      .delete()
+      .eq("id", id);
+  }
+
+  fetchOrders();
+};
 
   useEffect(() => {
 
   fetchOrders();
+  const liveOrders =
+setInterval(() => {
+
+  fetchOrders();
+
+}, 3000);
 
   const checkSchedule =
     setInterval(async () => {
@@ -139,9 +171,13 @@ async () => {
 
     }, 60000);
 
-  return () =>
-    clearInterval(checkSchedule);
+ return () => {
 
+  clearInterval(checkSchedule);
+
+  clearInterval(liveOrders);
+
+};
 }, []);
     const decreaseQtyMenu = (item) => {
 
@@ -927,33 +963,7 @@ const handleUserAuth = () => {
 
     </div>
 
-    {liveStatus && (
-
-      <div
-        style={{
-          background:"#222",
-          padding:"18px",
-          borderRadius:"15px",
-          marginBottom:"25px",
-          textAlign:"center",
-          border:"2px solid orange"
-        }}
-      >
-
-        <h2>
-          📦 Live Order Status
-        </h2>
-
-        <h1
-          style={{
-            color:"#ff9800"
-          }}
-        >
-          {liveStatus}
-        </h1>
-
-      </div>
-    )}
+    
 
     {/* NEW CATEGORY MENU */}
 
@@ -1471,7 +1481,13 @@ const handleUserAuth = () => {
 
     )}
 
-    {orders.map(
+    {orders
+.filter(
+  (order) =>
+    order.phone ===
+    phoneNumber
+)
+.map(
       (order, index) => (
 
         <div
@@ -1557,69 +1573,42 @@ const handleUserAuth = () => {
 
               <button
 
-                onClick={() => {
+  onClick={() =>
+    updateOrderStatus(
+      order.id,
+      "Order Prepared"
+    )
+  }
 
-                  localStorage.setItem(
-                    "liveStatus",
-                    "👨‍🍳 Order Prepared"
-                  );
+>
 
-                  setLiveStatus(
-                    "👨‍🍳 Order Prepared"
-                  );
+  👨‍🍳 Order Prepared
 
-                }}
-
-              >
-
-                👨‍🍳 Order Prepared
-
-              </button>
+</button>
 
               <button
 
-                onClick={() => {
+  onClick={() =>
+    updateOrderStatus(
+      order.id,
+      "Out For Delivery"
+    )
+  }
 
-                  localStorage.setItem(
-                    "liveStatus",
-                    "🛵 Out For Delivery"
-                  );
+>
 
-                  setLiveStatus(
-                    "🛵 Out For Delivery"
-                  );
+  🛵 Out For Delivery
 
-                }}
+</button>
 
-              >
+    <button
 
-                🛵 Out For Delivery
-
-              </button>
-
-              <button
-
-  onClick={() => {
-
-    localStorage.setItem(
-      "liveStatus",
-      "✅ Delivered"
-    );
-
-    setLiveStatus(
-      "✅ Delivered"
-    );
-
-    const updatedOrders =
-      orders.filter(
-        (_, i) => i !== index
-      );
-
-    setOrders(
-      updatedOrders
-    );
-
-  }}
+  onClick={() =>
+    updateOrderStatus(
+      order.id,
+      "Delivered"
+    )
+  }
 
 >
 
