@@ -1481,13 +1481,7 @@ const handleUserAuth = () => {
 
     )}
 
-    {orders
-.filter(
-  (order) =>
-    order.phone ===
-    phoneNumber
-)
-.map(
+    {orders.map(
       (order, index) => (
 
         <div
