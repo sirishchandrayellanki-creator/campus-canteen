@@ -48,6 +48,10 @@ useState("");
   const [paymentMethod, setPaymentMethod] =
     useState("UPI");
 
+  const [lastPaymentMethod,
+setLastPaymentMethod] =
+useState("");
+
   const [upiId, setUpiId] =
     useState(
       localStorage.getItem("canteenUPI") ||
@@ -59,8 +63,20 @@ useState("");
 setScheduleTime] =
 useState("");
 
+const [stockStatus, setStockStatus] =
+useState({});
+useEffect(() => {
 
+  const savedStock =
+    JSON.parse(
+      localStorage.getItem(
+        "stockStatus"
+      )
+    ) || {};
 
+  setStockStatus(savedStock);
+
+}, []);
 
 
 
@@ -86,15 +102,57 @@ async () => {
 
   setOrders(data || []);
 };
-const updateOrderStatus =
-async (id, status) => {
+const updateOrderStatus = async (id, currentStatus) => {
+
+  let nextStatus = "";
+
+  // CASH FLOW
+  if (currentStatus === "Order Pending") {
+    nextStatus = "Order Confirmed";
+  }
+
+  else if (currentStatus === "Order Confirmed") {
+    nextStatus = "Order Prepared";
+  }
+
+  else if (currentStatus === "Order Prepared") {
+    nextStatus = "Out For Delivery";
+  }
+
+  else if (currentStatus === "Out For Delivery") {
+    nextStatus = "Delivered";
+  }
+
+  else {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("Orders")
+    .update({
+      status: nextStatus
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+
+  fetchOrders();
+};
+
+
+
+// ADD HERE ↓↓↓
+
+const deleteOrder =
+async (id) => {
 
   const { error } =
     await supabase
       .from("Orders")
-      .update({
-        status: status
-      })
+      .delete()
       .eq("id", id);
 
   if (error) {
@@ -104,16 +162,23 @@ async (id, status) => {
     return;
   }
 
-  // DELETE WHEN DELIVERED
-  if (
-    status ===
-    "Delivered"
-  ) {
+  fetchOrders();
+};
 
+const deleteAllOrders =
+async () => {
+
+  const { error } =
     await supabase
       .from("Orders")
       .delete()
-      .eq("id", id);
+      .neq("id", 0);
+
+  if (error) {
+
+    console.log(error);
+
+    return;
   }
 
   fetchOrders();
@@ -127,7 +192,7 @@ setInterval(() => {
 
   fetchOrders();
 
-}, 3000);
+}, 5000);
 
   const checkSchedule =
     setInterval(async () => {
@@ -145,9 +210,10 @@ setInterval(() => {
       for (const order of savedOrders) {
 
         if (
-          order.schedule_time &&
-          !order.processed
-        ) {
+  order.schedule_time !==
+  "Instant Order" &&
+  !order.processed
+) {
 
           const orderTime =
             new Date(
@@ -159,7 +225,10 @@ setInterval(() => {
             await supabase
               .from("Orders")
               .update({
-                status: "Preparing",
+                status:
+order.payment === "CASH"
+  ? "Order Pending"
+  : "Order Confirmed",
                 processed: true
               })
               .eq("id", order.id);
@@ -603,6 +672,40 @@ const handleUserAuth = () => {
   }
 };
   const placeOrder = async () => {
+    if (scheduleTime) {
+
+  const now =
+    new Date();
+
+  const currentHours =
+    now.getHours();
+
+  const currentMinutes =
+    now.getMinutes();
+
+  const [hours, minutes] =
+    scheduleTime.split(":");
+
+  const selectedMinutes =
+    Number(hours) * 60 +
+    Number(minutes);
+
+  const currentTotalMinutes =
+    currentHours * 60 +
+    currentMinutes;
+
+  if (
+    selectedMinutes <
+    currentTotalMinutes
+  ) {
+
+    alert(
+      "❌ Invalid Schedule Time"
+    );
+
+    return;
+  }
+}
 
   playSound("/sounds/cart.mp3");
 
@@ -633,7 +736,7 @@ const handleUserAuth = () => {
     "Instant Order";
 
   const orderId =
-    "ORD" +
+    "#" +
     Math.floor(
       100000 +
       Math.random() * 900000
@@ -645,6 +748,8 @@ const handleUserAuth = () => {
 
     customer: userName,
 
+    hallTicket: hallTicket,
+
     phone: phoneNumber,
 
     payment: paymentMethod,
@@ -653,10 +758,10 @@ const handleUserAuth = () => {
 
     items: cart,
 
-    status: scheduled ===
-      "Instant Order"
-        ? "Preparing"
-        : "Scheduled",
+    status:
+paymentMethod === "CASH"
+  ? "Order Pending"
+  : "Order Confirmed",
 
     processed: false,
 
@@ -671,6 +776,7 @@ const handleUserAuth = () => {
   };
 
   const { error } =
+  
     await supabase
       .from("Orders")
       .insert([newOrder]);
@@ -687,6 +793,9 @@ const handleUserAuth = () => {
   }
 
   setOrderNumber(orderId);
+  setLastPaymentMethod(
+  paymentMethod
+);
 
   setCart([]);
 
@@ -1028,25 +1137,113 @@ const handleUserAuth = () => {
                     </span>
 
                     <button
-                      onClick={() =>
-                        addToCart(item)
-                      }
-                    >
-                      +
-                    </button>
+  onClick={() => {
+
+    if (
+      stockStatus[item.name] ===
+      "Out Of Stock"
+    ) return;
+
+    addToCart(item);
+
+  }}
+>
+  +
+</button>
 
                   </div>
 
                 ) : (
 
-                  <button
-                    className="add-btn"
-                    onClick={() =>
-                      addToCart(item)
-                    }
-                  >
-                    Add +
-                  </button>
+                  <div>
+
+
+
+{
+stockStatus[item.name] ===
+"Out Of Stock"
+? (
+
+<button
+  disabled
+  style={{
+    background:"red",
+    color:"white",
+    marginTop:"10px"
+  }}
+>
+  Out Of Stock
+</button>
+
+) : (
+
+<div>
+
+{
+screen === "admin" && (
+
+<select
+  value={
+    stockStatus[item.name] ||
+    "In Stock"
+  }
+
+  onChange={(e) =>
+    setStockStatus({
+      ...stockStatus,
+      [item.name]:
+      e.target.value
+    })
+  }
+
+>
+
+  <option>
+    In Stock
+  </option>
+
+  <option>
+    Out Of Stock
+  </option>
+
+</select>
+
+)}
+
+{
+stockStatus[item.name] ===
+"Out Of Stock"
+? (
+
+<button
+  disabled
+  style={{
+    background:"red",
+    color:"white",
+    marginTop:"10px"
+  }}
+>
+  Out Of Stock
+</button>
+
+) : (
+
+<button
+  className="add-btn"
+  onClick={() =>
+    addToCart(item)
+  }
+>
+  Add +
+</button>
+
+)}
+
+</div>
+
+)}
+
+</div>
 
                 )
               }
@@ -1079,6 +1276,19 @@ const handleUserAuth = () => {
     <h1>
       🎉 Order Placed Successfully
     </h1>
+    <h3
+  style={{
+    color:"#ff9800"
+  }}
+>
+
+{
+lastPaymentMethod === "CASH"
+? "🕒 Order Pending"
+: "✅ Order Confirmed"
+}
+
+</h3>
     <h2
   style={{
     color: "#ff9800",
@@ -1103,7 +1313,7 @@ const handleUserAuth = () => {
         setScreen("menu")
       }
     >
-      Back To Menu
+    Logout
     </button>
 
   </div>
@@ -1408,17 +1618,36 @@ const handleUserAuth = () => {
   <div className="box">
 
     <button
-      onClick={() =>
-        setScreen("menu")
-      }
-    >
-      🍔 Back To Menu
-    </button>
+  onClick={() => {
 
+    setAdminPassword("");
+
+    setScreen("login");
+
+  }}
+>
+  Logout
+</button>
     <h1>
       ⚙️ Admin Panel
     </h1>
-
+<button
+  onClick={() =>
+    setScreen("stockcheck")
+  }
+  style={{
+    marginTop: "15px",
+    background: "orange",
+    color: "black",
+    border: "none",
+    padding: "12px 20px",
+    borderRadius: "10px",
+    fontWeight: "bold",
+    cursor: "pointer"
+  }}
+>
+  📦 STOCK CHECK
+</button>
     <div
       style={{
         marginTop: "20px"
@@ -1472,7 +1701,31 @@ const handleUserAuth = () => {
     >
       📦 Orders
     </h2>
+{
+orders.length > 0 && (
 
+<button
+
+  onClick={
+    deleteAllOrders
+  }
+
+  style={{
+    background: "red",
+    color: "white",
+    border: "none",
+    padding: "12px 20px",
+    borderRadius: "10px",
+    marginBottom: "20px",
+    cursor: "pointer"
+  }}
+>
+
+🗑 Delete All Orders
+
+</button>
+
+)}
     {orders.length === 0 && (
 
       <p>
@@ -1490,7 +1743,7 @@ const handleUserAuth = () => {
         >
 
           <h3>
-            👤 {order.user}
+          👤 {order.customer}
           </h3>
 <p>
   🧾 Order No:
@@ -1517,6 +1770,10 @@ const handleUserAuth = () => {
 <p>
   🕒 Order Time:
   {order.order_time}
+</p>
+<p>
+  📦 Status:
+  {order.status}
 </p>
 
           <h3>
@@ -1565,50 +1822,80 @@ const handleUserAuth = () => {
               }}
             >
 
-              <button
+              
 
+              
+
+   <div
+  style={{
+    marginTop:"10px"
+  }}
+>
+
+{
+order.status !== "Delivered" && (
+
+<div>
+
+<button
   onClick={() =>
     updateOrderStatus(
       order.id,
-      "Order Prepared"
+      order.status
     )
   }
-
 >
 
-  👨‍🍳 Order Prepared
+{
+order.status ===
+"Order Pending"
+? "Confirm Order"
+
+: order.status ===
+"Order Confirmed"
+? "Prepare Order"
+
+: order.status ===
+"Order Prepared"
+? "Out For Delivery"
+
+: order.status ===
+"Out For Delivery"
+? "Deliver Order"
+
+: "Next"
+}
 
 </button>
 
-              <button
+
+
+<button
 
   onClick={() =>
-    updateOrderStatus(
-      order.id,
-      "Out For Delivery"
-    )
+    deleteOrder(order.id)
   }
 
+  style={{
+    background: "red",
+    color: "white",
+    border: "none",
+    padding: "10px 18px",
+    borderRadius: "10px",
+    marginTop: "10px",
+    cursor: "pointer"
+  }}
 >
 
-  🛵 Out For Delivery
+🗑 Delete Order
 
 </button>
 
-    <button
+</div>
 
-  onClick={() =>
-    updateOrderStatus(
-      order.id,
-      "Delivered"
-    )
-  }
+)}
 
->
-
-  ✅ Delivered
-
-</button>
+</div>
 
             </div>
         
@@ -1619,6 +1906,122 @@ const handleUserAuth = () => {
     )}
 
   </div>
+)}
+{screen === "stockcheck" && (
+
+  <div
+    className="box"
+  >
+
+    <h1
+      style={{
+        color: "orange"
+      }}
+    >
+      📦 STOCK CHECK
+    </h1>
+
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns:
+          "repeat(auto-fit,minmax(250px,1fr))",
+        gap: "20px"
+      }}
+    >
+
+      {menu.flatMap(
+        (category) =>
+          category.items.map(
+            (item, index) => (
+
+              <div
+                key={index}
+                style={{
+                  background: "#111",
+                  padding: "15px",
+                  borderRadius: "15px"
+                }}
+              >
+
+                <img
+                  src={item.image}
+                  alt=""
+                  style={{
+                    width: "100%",
+                    height: "180px",
+                    objectFit: "cover",
+                    borderRadius: "10px"
+                  }}
+                />
+
+                <h3>
+                  {item.name}
+                </h3>
+
+                <select
+                  value={
+                    stockStatus[
+                      item.name
+                    ] || "In Stock"
+                  }
+
+                  onChange={(e) => {
+
+                    const updatedStock = {
+
+                      ...stockStatus,
+
+                      [item.name]:
+                        e.target.value
+
+                    };
+
+                    setStockStatus(
+                      updatedStock
+                    );
+
+                    localStorage.setItem(
+                      "stockStatus",
+                      JSON.stringify(
+                        updatedStock
+                      )
+                    );
+
+                  }}
+                >
+
+                  <option>
+                    In Stock
+                  </option>
+
+                  <option>
+                    Out Of Stock
+                  </option>
+
+                </select>
+
+              </div>
+
+            )
+          )
+      )}
+
+    </div>
+
+    <button
+      onClick={() =>
+        setScreen("admin")
+      }
+      style={{
+        marginTop: "20px"
+      }}
+    >
+      🔙 Back
+    </button>
+
+  </div>
+
 )}
 
 {cart.length > 0 &&
