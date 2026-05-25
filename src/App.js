@@ -152,7 +152,9 @@ async (id) => {
   const { error } =
     await supabase
       .from("Orders")
-      .delete()
+      .update({
+        status:"Cancelled"
+      })
       .eq("id", id);
 
   if (error) {
@@ -1534,84 +1536,289 @@ lastPaymentMethod === "CASH"
 
       )}
 
-      {screen === "orders" && (
+     {screen === "orders" && (
 
-        <div className="box">
+<div className="box">
 
-          <button
-            onClick={() =>
-              setScreen("menu")
-            }
-          >
-            🍔 Back To Menu
-          </button>
+<button
+onClick={()=>
+setScreen("menu")
+}
+>
+🍔 Back To Menu
+</button>
 
-          <h1>
-            📦 My Previous Orders
-          </h1>
+<h1>
+📦 Live Order Status
+</h1>
 
-          {(JSON.parse(
-            localStorage.getItem(
-              "myOrders"
-            )
-          ) || []).length === 0 ? (
+<h2
+style={{
+color:"orange"
+}}
+>
+🔥 Active Orders
+</h2>
 
-            <h2>
-              No Orders Yet 📭
-            </h2>
+{
+orders.filter(
+(order)=>
+order.status !==
+"Delivered"
 
-          ) : (
+&&
 
-            (JSON.parse(
-              localStorage.getItem(
-                "myOrders"
-              )
-            ) || []).map(
-              (order, index) => (
+order.status !==
+"Cancelled"
+).length === 0 ? (
 
-                <div
-                  className="order"
-                  key={index}
-                >
+<h2>
+No Active Orders 📭
+</h2>
 
-                  <h3>
-                    📅 {order.date}
-                  </h3>
+) : (
 
-                  <h3>
-                    ⏰ {order.time}
-                  </h3>
+orders
+.filter(
+(order)=>
+order.status !==
+"Delivered"
+)
 
-                  <h3>
-                    💳 {order.payment}
-                  </h3>
+.map(
+(order,index)=>(
 
-                  <h3>
-                    💰 ₹{order.total}
-                  </h3>
+<div
+className="order"
+key={index}
 
-                  {order.items.map(
-                    (item, i) => (
+style={{
+border:
+"2px solid orange",
 
-                      <p key={i}>
-                        🍔 {item.name}
-                        {" "}x{" "}
-                        {item.quantity}
-                      </p>
+borderRadius:"15px",
 
-                    )
-                  )}
+padding:"15px",
 
-                </div>
+marginBottom:"20px"
+}}
+>
 
-              )
-            )
+<h3>
+🧾 Order No:
+{order.order_no}
+</h3>
 
-          )}
+<h3>
+📞 Phone:
+{order.phone}
+</h3>
 
-        </div>
+<h3>
+💳 Payment:
+{order.payment}
+</h3>
 
-      )}
+<h3>
+⏰ Schedule:
+{order.schedule_time}
+</h3>
+
+<h2
+style={{
+color:
+
+order.status ===
+"Order Pending"
+
+? "orange"
+
+: order.status ===
+"Order Confirmed"
+
+? "#2196f3"
+
+: order.status ===
+"Order Prepared"
+
+? "#9c27b0"
+
+: "#00e676"
+}}
+>
+
+📌 {order.status}
+
+</h2>
+
+<h3>
+🍽 Items
+</h3>
+
+{
+order.items.map(
+(item,i)=>(
+
+<p key={i}>
+🍔 {item.name}
+x {item.quantity}
+</p>
+
+))
+}
+
+<h3>
+💰 ₹{order.total}
+</h3>
+
+</div>
+
+))
+)
+
+}
+
+<h2
+style={{
+marginTop:"40px",
+color:"lime"
+}}
+>
+📜 Order History
+</h2>
+<h2
+style={{
+marginTop:"40px",
+color:"red"
+}}
+>
+❌ Cancelled Orders
+</h2>
+
+{
+orders.filter(
+(order)=>
+order.status ===
+"Cancelled"
+).length === 0 ? (
+
+<h3>
+No Cancelled Orders
+</h3>
+
+) : (
+
+orders
+.filter(
+(order)=>
+order.status ===
+"Cancelled"
+)
+
+.map(
+(order,index)=>(
+
+<div
+className="order"
+key={index}
+
+style={{
+border:
+"2px solid red",
+
+borderRadius:"15px",
+
+padding:"15px",
+
+marginBottom:"20px",
+
+opacity:0.7
+}}
+>
+
+<h3>
+🧾 Order No:
+{order.order_no}
+</h3>
+
+<h3>
+❌ Cancelled
+</h3>
+
+<h3>
+💰 ₹{order.total}
+</h3>
+
+</div>
+
+))
+)
+}
+{
+orders.filter(
+(order)=>
+order.status ===
+"Delivered"
+).length === 0 ? (
+
+<h3>
+No Delivered Orders
+</h3>
+
+) : (
+
+orders
+.filter(
+(order)=>
+order.status ===
+"Delivered"
+)
+
+.map(
+(order,index)=>(
+
+<div
+className="order"
+key={index}
+
+style={{
+border:
+"2px solid lime",
+
+borderRadius:"15px",
+
+padding:"15px",
+
+marginBottom:"20px",
+
+opacity:0.8
+}}
+>
+
+<h3>
+🧾 Order No:
+{order.order_no}
+</h3>
+
+<h3>
+✅ Delivered
+</h3>
+
+<h3>
+💰 ₹{order.total}
+</h3>
+
+</div>
+
+))
+)
+
+}
+
+</div>
+
+)}
+
 
       {screen === "admin" && (
 
@@ -1837,6 +2044,9 @@ order.status !== "Delivered" && (
 
 <div>
 
+{
+order.status !== "Delivered" && (
+
 <button
   onClick={() =>
     updateOrderStatus(
@@ -1844,29 +2054,63 @@ order.status !== "Delivered" && (
       order.status
     )
   }
+
+  style={{
+    background:
+      order.status ===
+      "Order Pending"
+
+      ? "#ff9800"
+
+      : order.status ===
+        "Order Confirmed"
+
+      ? "#2196f3"
+
+      : order.status ===
+        "Order Prepared"
+
+      ? "#9c27b0"
+
+      : "#4caf50",
+
+    color:"white",
+    border:"none",
+    padding:"10px",
+    borderRadius:"8px",
+    cursor:"pointer",
+    marginTop:"10px"
+  }}
 >
 
 {
 order.status ===
 "Order Pending"
+
 ? "Confirm Order"
 
 : order.status ===
 "Order Confirmed"
+
 ? "Prepare Order"
 
 : order.status ===
 "Order Prepared"
+
 ? "Out For Delivery"
 
 : order.status ===
 "Out For Delivery"
+
 ? "Deliver Order"
 
 : "Next"
 }
 
 </button>
+
+)
+}
 
 
 
