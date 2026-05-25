@@ -1287,21 +1287,22 @@ screen === "admin" && (
       newStatus
   });
 
-  const { data } =
+  const { data: existingItem } =
     await supabase
       .from("StockStatus")
       .select("*")
       .eq(
         "item_name",
         item.name
-      );
+      )
+      .maybeSingle();
 
-  if (data.length > 0) {
+  if (existingItem) {
 
     await supabase
       .from("StockStatus")
       .update({
-        status:newStatus
+        status: newStatus
       })
       .eq(
         "item_name",
@@ -1314,11 +1315,13 @@ screen === "admin" && (
       .from("StockStatus")
       .insert([
         {
-          item_name:item.name,
-          status:newStatus
+          item_name:
+            item.name,
+
+          status:
+            newStatus
         }
       ]);
-
   }
 
   fetchStockStatus();
