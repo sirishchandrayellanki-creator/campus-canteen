@@ -1281,50 +1281,21 @@ screen === "admin" && (
   const newStatus =
     e.target.value;
 
+  // Update screen instantly
   setStockStatus({
     ...stockStatus,
-    [item.name]:
-      newStatus
+    [item.name]: newStatus
   });
 
-  const { data: existingItem } =
-    await supabase
-      .from("StockStatus")
-      .select("*")
-      .eq(
-        "item_name",
-        item.name
-      )
-      .maybeSingle();
-
-  if (existingItem) {
-
-    await supabase
-      .from("StockStatus")
-      .update({
+  // Save in Supabase
+  await supabase
+    .from("StockStatus")
+    .upsert([
+      {
+        item_name: item.name,
         status: newStatus
-      })
-      .eq(
-        "item_name",
-        item.name
-      );
-
-  } else {
-
-    await supabase
-      .from("StockStatus")
-      .insert([
-        {
-          item_name:
-            item.name,
-
-          status:
-            newStatus
-        }
-      ]);
-  }
-
-  fetchStockStatus();
+      }
+    ]);
 
 }}
 
