@@ -65,18 +65,7 @@ useState("");
 
 const [stockStatus, setStockStatus] =
 useState({});
-useEffect(() => {
 
-  const savedStock =
-    JSON.parse(
-      localStorage.getItem(
-        "stockStatus"
-      )
-    ) || {};
-
-  setStockStatus(savedStock);
-
-}, []);
 
 
 
@@ -101,6 +90,34 @@ async () => {
   }
 
   setOrders(data || []);
+};
+const fetchStockStatus =
+async () => {
+
+  const {
+    data,
+    error
+  } = await supabase
+    .from("StockStatus")
+    .select("*");
+
+  if (error) {
+
+    console.log(error);
+
+    return;
+  }
+
+  const stockMap = {};
+
+  data.forEach((item) => {
+
+    stockMap[item.item_name] =
+      item.status;
+
+  });
+
+  setStockStatus(stockMap);
 };
 const updateOrderStatus = async (id, currentStatus) => {
 
@@ -189,10 +206,12 @@ async () => {
   useEffect(() => {
 
   fetchOrders();
+  fetchStockStatus();
   const liveOrders =
 setInterval(() => {
 
   fetchOrders();
+  fetchStockStatus();
 
 }, 5000);
 
@@ -595,29 +614,96 @@ const handleUserAuth = () => {
 
   ];
 
-  useEffect(() => {
+ useEffect(() => {
+
+  fetchOrders();
+
+  fetchStockStatus();
+
+  const liveOrders =
+  setInterval(() => {
 
     fetchOrders();
 
-    const currentUser =
-      JSON.parse(
-        localStorage.getItem("currentUser")
-      );
+    fetchStockStatus();
 
-    if (currentUser) {
+  }, 5000);
 
-      setUserName(currentUser.name);
+  const checkSchedule =
+    setInterval(async () => {
 
-      setPhoneNumber(currentUser.phone);
+      const { data } =
+        await supabase
+          .from("Orders")
+          .select("*");
 
-      setHallTicket(
-        currentUser.hallTicket
-      );
+      const savedOrders =
+        data || [];
 
-      setScreen("menu");
-    }
+      const now = new Date();
 
-  }, []);
+      for (const order of savedOrders) {
+
+        if (
+          order.schedule_time !==
+          "Instant Order"
+
+          &&
+
+          !order.processed
+        ) {
+
+          const orderTime =
+            new Date(
+              order.schedule_time
+            );
+
+          if (now >= orderTime) {
+
+            await supabase
+              .from("Orders")
+              .update({
+
+                status:
+                order.payment ===
+                "CASH"
+
+                ? "Order Pending"
+
+                : "Order Confirmed",
+
+                processed:true
+
+              })
+
+              .eq(
+                "id",
+                order.id
+              );
+
+          }
+
+        }
+
+      }
+
+      fetchOrders();
+
+    }, 60000);
+
+  return () => {
+
+    clearInterval(
+      checkSchedule
+    );
+
+    clearInterval(
+      liveOrders
+    );
+
+  };
+
+}, []);
 
 
 
@@ -1190,23 +1276,64 @@ screen === "admin" && (
     "In Stock"
   }
 
-  onChange={(e) =>
-    setStockStatus({
-      ...stockStatus,
-      [item.name]:
-      e.target.value
-    })
+  onChange={async (e) => {
+
+  const newStatus =
+    e.target.value;
+
+  setStockStatus({
+    ...stockStatus,
+    [item.name]:
+      newStatus
+  });
+
+  const { data } =
+    await supabase
+      .from("StockStatus")
+      .select("*")
+      .eq(
+        "item_name",
+        item.name
+      );
+
+  if (data.length > 0) {
+
+    await supabase
+      .from("StockStatus")
+      .update({
+        status:newStatus
+      })
+      .eq(
+        "item_name",
+        item.name
+      );
+
+  } else {
+
+    await supabase
+      .from("StockStatus")
+      .insert([
+        {
+          item_name:item.name,
+          status:newStatus
+        }
+      ]);
+
   }
+
+  fetchStockStatus();
+
+}}
 
 >
 
-  <option>
-    In Stock
-  </option>
+  <option value="In Stock">
+  In Stock
+</option>
 
-  <option>
-    Out Of Stock
-  </option>
+<option value="Out Of Stock">
+  Out Of Stock
+</option>
 
 </select>
 
