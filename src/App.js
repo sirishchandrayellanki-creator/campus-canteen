@@ -12,6 +12,8 @@ audio.play().catch(() => {});
  
 export default function App() {
 
+
+
   const [showFloatingCart,
 setShowFloatingCart] =
 useState(true);
@@ -46,7 +48,7 @@ useState("");
 
 
   const [paymentMethod, setPaymentMethod] =
-    useState("UPI");
+    useState("ONLINE PAYMENT");
 
   const [lastPaymentMethod,
 setLastPaymentMethod] =
@@ -59,12 +61,13 @@ useState("");
     );
     const [adminPassword, setAdminPassword] =
   useState("");
+  
   const [scheduleTime,
 setScheduleTime] =
 useState("");
-
 const [stockStatus, setStockStatus] =
 useState({});
+
 
 
 
@@ -94,30 +97,29 @@ async () => {
 const fetchStockStatus =
 async () => {
 
-  const {
-    data,
-    error
-  } = await supabase
-    .from("StockStatus")
-    .select("*");
+const { data, error } =
+await supabase
+.from("StockStatus")
+.select("*");
 
-  if (error) {
+if (error) {
+console.log(error);
+return;
+}
 
-    console.log(error);
+const updated = {};
 
-    return;
-  }
+for (const item of data) {
 
-  const stockMap = {};
+updated[item.item_name] =
+item.status;
 
-  data.forEach((item) => {
+}
 
-    stockMap[item.item_name] =
-      item.status;
+console.log(updated);
 
-  });
+setStockStatus(updated);
 
-  setStockStatus(stockMap);
 };
 const updateOrderStatus = async (id, currentStatus) => {
 
@@ -207,13 +209,20 @@ async () => {
 
   fetchOrders();
   fetchStockStatus();
+
   const liveOrders =
-setInterval(() => {
+  setInterval(() => {
 
-  fetchOrders();
-  fetchStockStatus();
+    fetchOrders();
 
-}, 5000);
+  }, 5000);
+
+  const liveStock =
+  setInterval(() => {
+
+    fetchStockStatus();
+
+  }, 3000);
 
   const checkSchedule =
     setInterval(async () => {
@@ -231,10 +240,10 @@ setInterval(() => {
       for (const order of savedOrders) {
 
         if (
-  order.schedule_time !==
-  "Instant Order" &&
-  !order.processed
-) {
+          order.schedule_time !==
+          "Instant Order" &&
+          !order.processed
+        ) {
 
           const orderTime =
             new Date(
@@ -247,9 +256,10 @@ setInterval(() => {
               .from("Orders")
               .update({
                 status:
-order.payment === "CASH"
-  ? "Order Pending"
-  : "Order Confirmed",
+order.payment === "PAY AT THE COUNTER"
+? "Order Pending"
+: "Order Confirmed",
+
                 processed: true
               })
               .eq("id", order.id);
@@ -261,13 +271,16 @@ order.payment === "CASH"
 
     }, 60000);
 
- return () => {
+  return () => {
 
-  clearInterval(checkSchedule);
+    clearInterval(checkSchedule);
 
-  clearInterval(liveOrders);
+    clearInterval(liveOrders);
 
-};
+    clearInterval(liveStock);
+
+  };
+
 }, []);
     const decreaseQtyMenu = (item) => {
 
@@ -618,14 +631,14 @@ const handleUserAuth = () => {
 
   fetchOrders();
 
-  fetchStockStatus();
+  
 
   const liveOrders =
   setInterval(() => {
 
     fetchOrders();
 
-    fetchStockStatus();
+    
 
   }, 5000);
 
@@ -666,7 +679,7 @@ const handleUserAuth = () => {
 
                 status:
                 order.payment ===
-                "CASH"
+                "PAY AT THE COUNTER"
 
                 ? "Order Pending"
 
@@ -847,7 +860,7 @@ const handleUserAuth = () => {
     items: cart,
 
     status:
-paymentMethod === "CASH"
+paymentMethod === "PAY AT THE COUNTER"
   ? "Order Pending"
   : "Order Confirmed",
 
@@ -1160,10 +1173,6 @@ paymentMethod === "CASH"
 
     </div>
 
-    
-
-    {/* NEW CATEGORY MENU */}
-
     {menu.map((section, index) => (
 
       <div key={index}>
@@ -1225,19 +1234,12 @@ paymentMethod === "CASH"
                     </span>
 
                     <button
-  onClick={() => {
-
-    if (
-      stockStatus[item.name] ===
-      "Out Of Stock"
-    ) return;
-
-    addToCart(item);
-
-  }}
->
-  +
-</button>
+                      onClick={() =>
+                        addToCart(item)
+                      }
+                    >
+                      +
+                    </button>
 
                   </div>
 
@@ -1245,108 +1247,16 @@ paymentMethod === "CASH"
 
                   <div>
 
+                    <button
+                      className="add-btn"
+                      onClick={() =>
+                        addToCart(item)
+                      }
+                    >
+                      Add +
+                    </button>
 
-
-{
-stockStatus[item.name] ===
-"Out Of Stock"
-? (
-
-<button
-  disabled
-  style={{
-    background:"red",
-    color:"white",
-    marginTop:"10px"
-  }}
->
-  Out Of Stock
-</button>
-
-) : (
-
-<div>
-
-{
-screen === "admin" && (
-
-<select
-  value={
-    stockStatus[item.name] ||
-    "In Stock"
-  }
-
-  onChange={async (e) => {
-
-  const newStatus =
-    e.target.value;
-
-  // Update screen instantly
-  setStockStatus({
-    ...stockStatus,
-    [item.name]: newStatus
-  });
-
-  // Save in Supabase
-  await supabase
-    .from("StockStatus")
-    .upsert([
-      {
-        item_name: item.name,
-        status: newStatus
-      }
-    ]);
-
-}}
-
->
-
-  <option value="In Stock">
-  In Stock
-</option>
-
-<option value="Out Of Stock">
-  Out Of Stock
-</option>
-
-</select>
-
-)}
-
-{
-stockStatus[item.name] ===
-"Out Of Stock"
-? (
-
-<button
-  disabled
-  style={{
-    background:"red",
-    color:"white",
-    marginTop:"10px"
-  }}
->
-  Out Of Stock
-</button>
-
-) : (
-
-<button
-  className="add-btn"
-  onClick={() =>
-    addToCart(item)
-  }
->
-  Add +
-</button>
-
-)}
-
-</div>
-
-)}
-
-</div>
+                  </div>
 
                 )
               }
@@ -1354,6 +1264,190 @@ stockStatus[item.name] ===
             </div>
 
           ))}
+
+        </div>
+
+      </div>
+
+    ))}
+
+  </div>
+
+)}{screen === "menu" && (
+
+  <div>
+
+    <div
+      style={{
+        textAlign: "center",
+        marginBottom: "30px"
+      }}
+    >
+
+      <h1
+        style={{
+          fontSize: "45px",
+          color: "white"
+        }}
+      >
+        👋 Welcome {userName} 🎉
+      </h1>
+
+      <h2
+        style={{
+          color: "#ff9800",
+          fontSize: "35px"
+        }}
+      >
+        🍔 Campus Canteen 🍜
+      </h2>
+
+    </div>
+
+    <div
+      style={{
+        display: "flex",
+        gap: "15px",
+        flexWrap: "wrap",
+        marginBottom: "20px"
+      }}
+    >
+
+      <button
+        onClick={logoutUser}
+      >
+        🚪 Logout
+      </button>
+
+      <button
+        onClick={() =>
+          setScreen("cart")
+        }
+      >
+        🛒 Cart (
+        {
+          cart.reduce(
+            (total, item) =>
+              total + item.quantity,
+            0
+          )
+        }
+        )
+      </button>
+
+      <button
+        onClick={() =>
+          setScreen("orders")
+        }
+      >
+        📦 My Orders
+      </button>
+
+    </div>
+
+    {menu.map((section, index) => (
+
+      <div key={index}>
+
+        <h1
+          style={{
+            color: "#ff9800",
+            marginTop: "40px"
+          }}
+        >
+          🍽️ {section.category}
+        </h1>
+
+        <div className="grid">
+
+          {
+
+
+section.items
+.filter(
+(item) =>
+stockStatus[item.name] !==
+"Out Of Stock"
+)
+.map((item, i) => (
+
+            <div
+              className="card"
+              key={i}
+            >
+
+              <img
+                src={item.image}
+                alt=""
+              />
+
+              <h2>
+                {item.name}
+              </h2>
+<p style={{color:"red"}}>
+{stockStatus[item.name]}
+</p>
+              <p>
+                ₹{item.price}
+              </p>
+
+              {
+                cart.find(
+                  (cartItem) =>
+                    cartItem.name === item.name
+                ) ? (
+
+                  <div className="qty-controls">
+
+                    <button
+                      onClick={() =>
+                        decreaseQtyMenu(item)
+                      }
+                    >
+                      -
+                    </button>
+
+                    <span>
+                      {
+                        cart.find(
+                          (cartItem) =>
+                            cartItem.name === item.name
+                        ).quantity
+                      }
+                    </span>
+
+                    <button
+                      onClick={() =>
+                        addToCart(item)
+                      }
+                    >
+                      +
+                    </button>
+
+                  </div>
+
+                ) : (
+
+                  <div>
+
+                    <button
+                      className="add-btn"
+                      onClick={() =>
+                        addToCart(item)
+                      }
+                    >
+                      Add +
+                    </button>
+
+                  </div>
+
+                )
+              }
+
+            </div>
+
+          ))
+          }
 
         </div>
 
@@ -1386,7 +1480,7 @@ stockStatus[item.name] ===
 >
 
 {
-lastPaymentMethod === "CASH"
+lastPaymentMethod === "PAY AT THE COUNTER"
 ? "🕒 Order Pending"
 : "✅ Order Confirmed"
 }
@@ -1444,7 +1538,7 @@ lastPaymentMethod === "CASH"
             (item, index) => (
 
               <div
-                key={index}
+                key={item.index}
                 className="order"
               >
 
@@ -1589,16 +1683,16 @@ lastPaymentMethod === "CASH"
             }
           >
             <option>
-              UPI
+              ONLINE PAYMENT
             </option>
 
             <option>
-              CASH
+              PAY AT THE COUNTER
             </option>
 
           </select>
 
-          {paymentMethod === "UPI" && (
+          {paymentMethod === "ONLINE PAYMENT" && (
 
             <div
               style={{
@@ -1926,36 +2020,164 @@ opacity:0.8
   <div className="box">
 
     <button
-  onClick={() => {
+      onClick={() => {
 
-    setAdminPassword("");
+        setAdminPassword("");
+        setScreen("login");
 
-    setScreen("login");
+      }}
+    >
+      Logout
+    </button>
 
-  }}
->
-  Logout
-</button>
     <h1>
       ⚙️ Admin Panel
     </h1>
-<button
-  onClick={() =>
-    setScreen("stockcheck")
-  }
-  style={{
-    marginTop: "15px",
-    background: "orange",
-    color: "black",
-    border: "none",
-    padding: "12px 20px",
-    borderRadius: "10px",
-    fontWeight: "bold",
-    cursor: "pointer"
-  }}
+<h1>
+📦 Stock Control
+</h1>
+
+{
+menu.map((category) => (
+
+<div
+key={category.category}
+style={{
+marginTop:"30px"
+}}
 >
-  📦 STOCK CHECK
-</button>
+
+<h2>
+{category.category}
+</h2>
+
+<div
+style={{
+display:"flex",
+flexWrap:"wrap",
+gap:"20px"
+}}
+>
+
+{
+category.items.map((item) => (
+
+<div
+key={item.name}
+style={{
+width:"220px",
+border:"1px solid #ccc",
+borderRadius:"12px",
+padding:"10px",
+textAlign:"center"
+}}
+>
+
+<img
+src={item.image}
+alt={item.name}
+style={{
+width:"100%",
+height:"130px",
+objectFit:"cover",
+borderRadius:"10px"
+}}
+/>
+
+<h3>
+{item.name}
+</h3>
+
+<p>
+₹{item.price}
+</p>
+
+<select
+
+value={
+stockStatus[item.name] ||
+"In Stock"
+}
+
+onChange={async (e) => {
+
+const newStatus =
+e.target.value;
+
+setStockStatus({
+...stockStatus,
+[item.name]: newStatus
+});
+
+const { error } =
+await supabase
+.from("StockStatus")
+.update({
+status: newStatus
+})
+.eq("item_name", item.name);
+
+if (error) {
+
+await supabase
+.from("StockStatus")
+.insert({
+item_name: item.name,
+status: newStatus
+});
+
+}
+
+fetchStockStatus();
+
+}}
+style={{
+padding:"10px",
+width:"100%",
+borderRadius:"8px"
+}}
+>
+
+<option>
+In Stock
+</option>
+
+<option>
+Out Of Stock
+</option>
+
+</select>
+
+</div>
+
+))
+}
+
+</div>
+
+</div>
+
+))
+}
+    <button
+      onClick={() =>
+        setScreen("stockcheck")
+      }
+
+      style={{
+        marginTop: "15px",
+        background: "orange",
+        color: "black",
+        border: "none",
+        padding: "12px 20px",
+        borderRadius: "10px",
+        fontWeight: "bold",
+        cursor: "pointer"
+      }}
+    >
+      📦 STOCK CHECK
+    </button>
+
     <div
       style={{
         marginTop: "20px"
@@ -1968,6 +2190,7 @@ opacity:0.8
 
       <input
         type="text"
+
         value={upiId}
 
         onChange={(e) =>
@@ -2009,6 +2232,7 @@ opacity:0.8
     >
       📦 Orders
     </h2>
+
 {
 orders.length > 0 && (
 
@@ -2034,121 +2258,114 @@ orders.length > 0 && (
 </button>
 
 )}
-    {orders.length === 0 && (
+
+{
+orders.length === 0 && (
+
+<p>
+  No Orders Yet
+</p>
+
+)}
+
+{
+orders.map(
+  (order, index) => (
+
+    <div
+      key={index}
+      className="order"
+    >
+
+      <h3>
+        👤 {order.customer}
+      </h3>
 
       <p>
-        No Orders Yet
+        🧾 Order No:
+        {order.order_no}
       </p>
 
-    )}
+      <p>
+        📞 Phone:
+        {order.phone}
+      </p>
 
-    {orders.map(
-      (order, index) => (
+      <p>
+        🎫 {order.hallTicket}
+      </p>
 
-        <div
-          key={index}
-          className="order"
-        >
+      <p>
+        💳 {order.payment}
+      </p>
 
-          <h3>
-          👤 {order.customer}
-          </h3>
-<p>
-  🧾 Order No:
-  {order.order_no}
-</p>
-         <p>
-  📞 Phone:
-  {order.phone}
-</p>
+      <p>
+        ⏰ Scheduled Time:
+        {order.schedule_time}
+      </p>
 
-          <p>
-            🎫 {order.hallTicket}
-          </p>
+      <p>
+        🕒 Order Time:
+        {order.order_time}
+      </p>
 
-          <p>
-            💳 {order.payment}
-          </p>
+      <p>
+        📦 Status:
+        {order.status}
+      </p>
 
-          <p>
-  ⏰ Scheduled Time:
-  {order.schedule_time}
-</p>
+      <h3>
+        🍽️ Items
+      </h3>
 
-<p>
-  🕒 Order Time:
-  {order.order_time}
-</p>
-<p>
-  📦 Status:
-  {order.status}
-</p>
+      {
+order.items.map(
+(item, i) => (
 
-          <h3>
-            🍽️ Items
-          </h3>
+<div
+  key={i}
 
-          {order.items.map(
-            (item, i) => (
-
-              <div
-                key={i}
-                style={{
-                  marginBottom: "20px",
-                  textAlign: "center"
-                }}
-              >
-
-                <img
-                  src={item.image}
-                  alt=""
-                  className="admin-food-image"
-                />
-
-                <p>
-                  🍽️ {item.name}
-                </p>
-
-                <p>
-                  🔢 Quantity:
-                  {item.quantity}
-                </p>
-
-              </div>
-
-            )
-          )}
-
-          
-
-            <div
-              style={{
-                marginTop: "20px",
-                display: "flex",
-                gap: "10px",
-                flexWrap: "wrap"
-              }}
-            >
-
-              
-
-              
-
-   <div
   style={{
-    marginTop:"10px"
+    marginBottom:"20px",
+    textAlign:"center"
+  }}
+>
+
+<img
+  src={item.image}
+  alt=""
+  className="admin-food-image"
+/>
+
+<p>
+  🍽️ {item.name}
+</p>
+
+<p>
+  🔢 Quantity:
+  {item.quantity}
+</p>
+
+</div>
+
+))
+}
+
+<div
+  style={{
+    marginTop:"20px",
+    display:"flex",
+    gap:"10px",
+    flexWrap:"wrap"
   }}
 >
 
 {
-order.status !== "Delivered" && (
-
-<div>
-
-{
-order.status !== "Delivered" && (
+order.status !==
+"Delivered" && (
 
 <button
+
   onClick={() =>
     updateOrderStatus(
       order.id,
@@ -2210,10 +2427,11 @@ order.status ===
 
 </button>
 
-)
-}
+)}
 
-
+{
+order.status ===
+"Order Pending" && (
 
 <button
 
@@ -2222,13 +2440,13 @@ order.status ===
   }
 
   style={{
-    background: "red",
-    color: "white",
-    border: "none",
-    padding: "10px 18px",
-    borderRadius: "10px",
-    marginTop: "10px",
-    cursor: "pointer"
+    background:"red",
+    color:"white",
+    border:"none",
+    padding:"10px 18px",
+    borderRadius:"10px",
+    marginTop:"10px",
+    cursor:"pointer"
   }}
 >
 
@@ -2236,21 +2454,17 @@ order.status ===
 
 </button>
 
-</div>
-
 )}
 
 </div>
 
-            </div>
-        
+</div>
 
-        </div>
-
-      )
-    )}
+))
+}
 
   </div>
+
 )}
 {screen === "stockcheck" && (
 
@@ -2281,7 +2495,7 @@ order.status ===
             (item, index) => (
 
               <div
-                key={index}
+                key={item.name}
                 style={{
                   background: "#111",
                   padding: "15px",
@@ -2304,47 +2518,7 @@ order.status ===
                   {item.name}
                 </h3>
 
-                <select
-                  value={
-                    stockStatus[
-                      item.name
-                    ] || "In Stock"
-                  }
-
-                  onChange={(e) => {
-
-                    const updatedStock = {
-
-                      ...stockStatus,
-
-                      [item.name]:
-                        e.target.value
-
-                    };
-
-                    setStockStatus(
-                      updatedStock
-                    );
-
-                    localStorage.setItem(
-                      "stockStatus",
-                      JSON.stringify(
-                        updatedStock
-                      )
-                    );
-
-                  }}
-                >
-
-                  <option>
-                    In Stock
-                  </option>
-
-                  <option>
-                    Out Of Stock
-                  </option>
-
-                </select>
+               
 
               </div>
 
