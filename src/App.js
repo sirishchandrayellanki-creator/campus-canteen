@@ -1180,11 +1180,33 @@ textAlign:"center"
 }}
 >
 
+<div
+style={{
+position:"relative",
+display:"inline-block",
+width:"90%",
+maxWidth:"500px"
+}}
+>
+
+<span
+style={{
+position:"absolute",
+left:"15px",
+top:"50%",
+transform:"translateY(-50%)",
+fontSize:"24px",
+zIndex:"1"
+}}
+>
+🔍
+</span>
+
 <input
 
 type="text"
 
-placeholder="🔍 Search Food Item"
+placeholder="Search Food Item"
 
 value={search}
 
@@ -1194,11 +1216,9 @@ setSearch(e.target.value)
 
 style={{
 
-width:"90%",
+width:"100%",
 
-maxWidth:"500px",
-
-padding:"15px",
+padding:"15px 15px 15px 55px",
 
 fontSize:"18px",
 
@@ -1214,18 +1234,35 @@ outline:"none"
 
 </div>
 
+</div>
+
     {menu.map((section, index) => (
 
       <div key={index}>
 
-        <h1
-          style={{
-            color: "#ff9800",
-            marginTop: "40px"
-          }}
-        >
-          🍽️ {section.category}
-        </h1>
+        {
+
+section.items.some((item) =>
+
+item.name
+.toLowerCase()
+.includes(
+search.toLowerCase()
+)
+
+) && (
+
+<h1
+style={{
+color: "#ff9800",
+marginTop: "40px"
+}}
+>
+🍽️ {section.category}
+</h1>
+
+)
+}
 
         <div className="grid">
 
