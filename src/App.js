@@ -1331,68 +1331,78 @@ search.toLowerCase()
                     cartItem.name === item.name
                 ) ? (
 
-                  <div className="qty-controls">
+                 <div className="qty-controls">
 
-                    <button
-                      onClick={() =>
-                        decreaseQtyMenu(item)
-                      }
-                    >
-                      -
-                    </button>
+<button
+className="qty-btn"
 
-                    <span>
-                      {
+onClick={() =>
+decreaseQtyMenu(item)
+}
+>
 
-                        cart.find(
-                          (cartItem) =>
-                            cartItem.name === item.name
-                        ).quantity
+−
 
-                      }
-                    </span>
+</button>
 
-                    <button
+<span className="qty-number">
 
-                      disabled={
-                        stockStatus[item.name] ===
-                        "Out Of Stock"
-                      }
+{
 
-                      onClick={() => {
+cart.find(
+(cartItem) =>
+cartItem.name === item.name
+).quantity
 
-                        if (
-                          stockStatus[item.name] ===
-                          "Out Of Stock"
-                        ) {
-                          return;
-                        }
+}
 
-                        addToCart(item);
+</span>
 
-                      }}
+<button
 
-                      style={{
+className="qty-btn plus-btn"
 
-                        opacity:
-                          stockStatus[item.name] ===
-                          "Out Of Stock"
-                          ? 0.5
-                          : 1,
+disabled={
+stockStatus[item.name] ===
+"Out Of Stock"
+}
 
-                        cursor:
-                          stockStatus[item.name] ===
-                          "Out Of Stock"
-                          ? "not-allowed"
-                          : "pointer"
+onClick={() => {
 
-                      }}
+if (
+stockStatus[item.name] ===
+"Out Of Stock"
+) {
+return;
+}
 
-                    >
-                      +
-                    </button>
+addToCart(item);
 
-                  </div>
+}}
+
+style={{
+
+opacity:
+stockStatus[item.name] ===
+"Out Of Stock"
+? 0.5
+: 1,
+
+cursor:
+stockStatus[item.name] ===
+"Out Of Stock"
+? "not-allowed"
+: "pointer"
+
+}}
+
+>
+
++
+
+</button>
+
+</div>
 
                 ) : (
 
@@ -2409,7 +2419,14 @@ className="card"
 key={i}
 >
 
-
+<img
+  src={item.image}
+  alt={item.name}
+  onError={(e) => {
+    e.target.src =
+    "https://via.placeholder.com/300x200?text=Food";
+  }}
+/>
 
 <h2>
 {item.name}
@@ -2508,69 +2525,65 @@ Out Of Stock
 )
 }
 
-{cart.length > 0 &&
-showFloatingCart && (
+{showFloatingCart &&
+cart.length > 0 && (
 
-  <div className="floating-cart">
+<div
+className="floating-cart"
+onClick={() =>
+setScreen("cart")
+}
+>
 
-    <div className="cart-left">
+<div
+className="floating-left"
+>
 
-      <img
-        src={cart[0].image}
-        alt=""
-      />
+<div className="floating-count">
+{cart.length}
+</div>
 
-      <div className="cart-text">
+<div>
 
-        <h3>
-          {cart[0].name}
-        </h3>
+<h3>
+{cart[0].name}
+</h3>
 
-        <p>
-          View Menu ▶
-        </p>
+<p>
+{cart.length} item added
+</p>
 
-      </div>
+</div>
 
-    </div>
+</div>
 
-    <button
-      className="view-cart-btn"
+<div
+className="floating-right"
+>
 
-      onClick={() =>
-        setScreen("cart")
-      }
-    >
+View Cart ❯
 
-      View Cart
+</div>
 
-      <span>
+<button
 
-        {
-          cart.reduce(
-            (total, item) =>
-              total + item.quantity,
-            0
-          )
-        } items
+onClick={(e) => {
 
-      </span>
+e.stopPropagation();
 
-    </button>
+setShowFloatingCart(false);
 
-    <button
-      className="close-cart-btn"
+}}
 
-      onClick={() =>
-        setShowFloatingCart(false)
-      }
-    >
+className="close-floating"
+>
 
-      ✖
+✕
 
-    </button>
+</button>
 
-  </div>
+</div>
+
 )}
     </div>
   );
