@@ -1188,188 +1188,9 @@ paymentMethod === "PAY AT THE COUNTER"
 
         <div className="grid">
 
-          {section.items.map((item, i) => (
-
-            <div
-              className="card"
-              key={i}
-            >
-
-              <img
-                src={item.image}
-                alt=""
-              />
-
-              <h2>
-                {item.name}
-              </h2>
-
-              <p>
-                ₹{item.price}
-              </p>
-
-              {
-                cart.find(
-                  (cartItem) =>
-                    cartItem.name === item.name
-                ) ? (
-
-                  <div className="qty-controls">
-
-                    <button
-                      onClick={() =>
-                        decreaseQtyMenu(item)
-                      }
-                    >
-                      -
-                    </button>
-
-                    <span>
-                      {
-                        cart.find(
-                          (cartItem) =>
-                            cartItem.name === item.name
-                        ).quantity
-                      }
-                    </span>
-
-                    <button
-                      onClick={() =>
-                        addToCart(item)
-                      }
-                    >
-                      +
-                    </button>
-
-                  </div>
-
-                ) : (
-
-                  <div>
-
-                    <button
-                      className="add-btn"
-                      onClick={() =>
-                        addToCart(item)
-                      }
-                    >
-                      Add +
-                    </button>
-
-                  </div>
-
-                )
-              }
-
-            </div>
-
-          ))}
-
-        </div>
-
-      </div>
-
-    ))}
-
-  </div>
-
-)}{screen === "menu" && (
-
-  <div>
-
-    <div
-      style={{
-        textAlign: "center",
-        marginBottom: "30px"
-      }}
-    >
-
-      <h1
-        style={{
-          fontSize: "45px",
-          color: "white"
-        }}
-      >
-        👋 Welcome {userName} 🎉
-      </h1>
-
-      <h2
-        style={{
-          color: "#ff9800",
-          fontSize: "35px"
-        }}
-      >
-        🍔 Campus Canteen 🍜
-      </h2>
-
-    </div>
-
-    <div
-      style={{
-        display: "flex",
-        gap: "15px",
-        flexWrap: "wrap",
-        marginBottom: "20px"
-      }}
-    >
-
-      <button
-        onClick={logoutUser}
-      >
-        🚪 Logout
-      </button>
-
-      <button
-        onClick={() =>
-          setScreen("cart")
-        }
-      >
-        🛒 Cart (
-        {
-          cart.reduce(
-            (total, item) =>
-              total + item.quantity,
-            0
-          )
-        }
-        )
-      </button>
-
-      <button
-        onClick={() =>
-          setScreen("orders")
-        }
-      >
-        📦 My Orders
-      </button>
-
-    </div>
-
-    {menu.map((section, index) => (
-
-      <div key={index}>
-
-        <h1
-          style={{
-            color: "#ff9800",
-            marginTop: "40px"
-          }}
-        >
-          🍽️ {section.category}
-        </h1>
-
-        <div className="grid">
-
           {
 
-
-section.items
-.filter(
-(item) =>
-stockStatus[item.name] !==
-"Out Of Stock"
-)
-.map((item, i) => (
+          section.items.map((item, i) => (
 
             <div
               className="card"
@@ -1384,14 +1205,37 @@ stockStatus[item.name] !==
               <h2>
                 {item.name}
               </h2>
-<p style={{color:"red"}}>
-{stockStatus[item.name]}
-</p>
+
               <p>
                 ₹{item.price}
               </p>
 
               {
+                stockStatus[item.name] ===
+                "Out Of Stock" && (
+
+                  <div
+                    style={{
+                      background:"red",
+                      color:"white",
+                      padding:"10px",
+                      borderRadius:"10px",
+                      marginTop:"10px",
+                      fontWeight:"bold",
+                      fontSize:"18px",
+                      textAlign:"center"
+                    }}
+                  >
+
+                    OUT OF STOCK
+
+                  </div>
+
+              )
+              }
+
+              {
+
                 cart.find(
                   (cartItem) =>
                     cartItem.name === item.name
@@ -1409,17 +1253,51 @@ stockStatus[item.name] !==
 
                     <span>
                       {
+
                         cart.find(
                           (cartItem) =>
                             cartItem.name === item.name
                         ).quantity
+
                       }
                     </span>
 
                     <button
-                      onClick={() =>
-                        addToCart(item)
+
+                      disabled={
+                        stockStatus[item.name] ===
+                        "Out Of Stock"
                       }
+
+                      onClick={() => {
+
+                        if (
+                          stockStatus[item.name] ===
+                          "Out Of Stock"
+                        ) {
+                          return;
+                        }
+
+                        addToCart(item);
+
+                      }}
+
+                      style={{
+
+                        opacity:
+                          stockStatus[item.name] ===
+                          "Out Of Stock"
+                          ? 0.5
+                          : 1,
+
+                        cursor:
+                          stockStatus[item.name] ===
+                          "Out Of Stock"
+                          ? "not-allowed"
+                          : "pointer"
+
+                      }}
+
                     >
                       +
                     </button>
@@ -1431,22 +1309,59 @@ stockStatus[item.name] !==
                   <div>
 
                     <button
+
                       className="add-btn"
-                      onClick={() =>
-                        addToCart(item)
+
+                      disabled={
+                        stockStatus[item.name] ===
+                        "Out Of Stock"
                       }
+
+                      onClick={() => {
+
+                        if (
+                          stockStatus[item.name] ===
+                          "Out Of Stock"
+                        ) {
+                          return;
+                        }
+
+                        addToCart(item);
+
+                      }}
+
+                      style={{
+
+                        opacity:
+                          stockStatus[item.name] ===
+                          "Out Of Stock"
+                          ? 0.5
+                          : 1,
+
+                        cursor:
+                          stockStatus[item.name] ===
+                          "Out Of Stock"
+                          ? "not-allowed"
+                          : "pointer"
+
+                      }}
+
                     >
+
                       Add +
+
                     </button>
 
                   </div>
 
                 )
+
               }
 
             </div>
 
           ))
+
           }
 
         </div>
@@ -2019,168 +1934,49 @@ opacity:0.8
 
   <div className="box">
 
-    <button
-      onClick={() => {
+    {/* TOP BUTTONS */}
 
-        setAdminPassword("");
-        setScreen("login");
-
+    <div
+      style={{
+        display:"flex",
+        gap:"15px",
+        flexWrap:"wrap",
+        marginBottom:"20px"
       }}
     >
-      Logout
-    </button>
+
+      <button
+        onClick={() => {
+
+          setAdminPassword("");
+          setScreen("login");
+
+        }}
+      >
+        🚪 Logout
+      </button>
+
+      <button
+        onClick={() =>
+          setScreen("stock")
+        }
+      >
+        📦 Stock Management
+      </button>
+
+    </div>
+
+    {/* TITLE */}
 
     <h1>
       ⚙️ Admin Panel
     </h1>
-<h1>
-📦 Stock Control
-</h1>
 
-{
-menu.map((category) => (
-
-<div
-key={category.category}
-style={{
-marginTop:"30px"
-}}
->
-
-<h2>
-{category.category}
-</h2>
-
-<div
-style={{
-display:"flex",
-flexWrap:"wrap",
-gap:"20px"
-}}
->
-
-{
-category.items.map((item) => (
-
-<div
-key={item.name}
-style={{
-width:"220px",
-border:"1px solid #ccc",
-borderRadius:"12px",
-padding:"10px",
-textAlign:"center"
-}}
->
-
-<img
-src={item.image}
-alt={item.name}
-style={{
-width:"100%",
-height:"130px",
-objectFit:"cover",
-borderRadius:"10px"
-}}
-/>
-
-<h3>
-{item.name}
-</h3>
-
-<p>
-₹{item.price}
-</p>
-
-<select
-
-value={
-stockStatus[item.name] ||
-"In Stock"
-}
-
-onChange={async (e) => {
-
-const newStatus =
-e.target.value;
-
-setStockStatus({
-...stockStatus,
-[item.name]: newStatus
-});
-
-const { error } =
-await supabase
-.from("StockStatus")
-.update({
-status: newStatus
-})
-.eq("item_name", item.name);
-
-if (error) {
-
-await supabase
-.from("StockStatus")
-.insert({
-item_name: item.name,
-status: newStatus
-});
-
-}
-
-fetchStockStatus();
-
-}}
-style={{
-padding:"10px",
-width:"100%",
-borderRadius:"8px"
-}}
->
-
-<option>
-In Stock
-</option>
-
-<option>
-Out Of Stock
-</option>
-
-</select>
-
-</div>
-
-))
-}
-
-</div>
-
-</div>
-
-))
-}
-    <button
-      onClick={() =>
-        setScreen("stockcheck")
-      }
-
-      style={{
-        marginTop: "15px",
-        background: "orange",
-        color: "black",
-        border: "none",
-        padding: "12px 20px",
-        borderRadius: "10px",
-        fontWeight: "bold",
-        cursor: "pointer"
-      }}
-    >
-      📦 STOCK CHECK
-    </button>
+    {/* UPI SECTION */}
 
     <div
       style={{
-        marginTop: "20px"
+        marginTop: "40px"
       }}
     >
 
@@ -2225,6 +2021,8 @@ Out Of Stock
 
     </div>
 
+    {/* ORDERS SECTION */}
+
     <h2
       style={{
         marginTop: "40px"
@@ -2233,315 +2031,399 @@ Out Of Stock
       📦 Orders
     </h2>
 
-{
-orders.length > 0 && (
+    {
 
-<button
+    orders.length > 0 && (
 
-  onClick={
-    deleteAllOrders
-  }
+      <button
 
-  style={{
-    background: "red",
-    color: "white",
-    border: "none",
-    padding: "12px 20px",
-    borderRadius: "10px",
-    marginBottom: "20px",
-    cursor: "pointer"
-  }}
->
+        onClick={
+          deleteAllOrders
+        }
 
-🗑 Delete All Orders
+        style={{
+          background: "red",
+          color: "white",
+          border: "none",
+          padding: "12px 20px",
+          borderRadius: "10px",
+          marginBottom: "20px",
+          cursor: "pointer"
+        }}
+      >
 
-</button>
+        🗑 Delete All Orders
 
-)}
+      </button>
 
-{
-orders.length === 0 && (
-
-<p>
-  No Orders Yet
-</p>
-
-)}
-
-{
-orders.map(
-  (order, index) => (
-
-    <div
-      key={index}
-      className="order"
-    >
-
-      <h3>
-        👤 {order.customer}
-      </h3>
-
-      <p>
-        🧾 Order No:
-        {order.order_no}
-      </p>
-
-      <p>
-        📞 Phone:
-        {order.phone}
-      </p>
-
-      <p>
-        🎫 {order.hallTicket}
-      </p>
-
-      <p>
-        💳 {order.payment}
-      </p>
-
-      <p>
-        ⏰ Scheduled Time:
-        {order.schedule_time}
-      </p>
-
-      <p>
-        🕒 Order Time:
-        {order.order_time}
-      </p>
-
-      <p>
-        📦 Status:
-        {order.status}
-      </p>
-
-      <h3>
-        🍽️ Items
-      </h3>
-
-      {
-order.items.map(
-(item, i) => (
-
-<div
-  key={i}
-
-  style={{
-    marginBottom:"20px",
-    textAlign:"center"
-  }}
->
-
-<img
-  src={item.image}
-  alt=""
-  className="admin-food-image"
-/>
-
-<p>
-  🍽️ {item.name}
-</p>
-
-<p>
-  🔢 Quantity:
-  {item.quantity}
-</p>
-
-</div>
-
-))
-}
-
-<div
-  style={{
-    marginTop:"20px",
-    display:"flex",
-    gap:"10px",
-    flexWrap:"wrap"
-  }}
->
-
-{
-order.status !==
-"Delivered" && (
-
-<button
-
-  onClick={() =>
-    updateOrderStatus(
-      order.id,
-      order.status
     )
-  }
 
-  style={{
-    background:
-      order.status ===
-      "Order Pending"
+    }
 
-      ? "#ff9800"
+    {
 
-      : order.status ===
-        "Order Confirmed"
+    orders.length === 0 && (
 
-      ? "#2196f3"
+      <p>
+        No Orders Yet
+      </p>
 
-      : order.status ===
-        "Order Prepared"
+    )
 
-      ? "#9c27b0"
+    }
 
-      : "#4caf50",
+    {
 
-    color:"white",
-    border:"none",
-    padding:"10px",
-    borderRadius:"8px",
-    cursor:"pointer",
-    marginTop:"10px"
-  }}
->
+    orders.map(
+      (order, index) => (
 
-{
-order.status ===
-"Order Pending"
+        <div
+          key={index}
+          className="order"
+        >
 
-? "Confirm Order"
+          <h3>
+            👤 {order.customer}
+          </h3>
 
-: order.status ===
-"Order Confirmed"
+          <p>
+            🧾 Order No:
+            {order.order_no}
+          </p>
 
-? "Prepare Order"
+          <p>
+            📞 Phone:
+            {order.phone}
+          </p>
 
-: order.status ===
-"Order Prepared"
+          <p>
+            🎫 {order.hallTicket}
+          </p>
 
-? "Out For Delivery"
+          <p>
+            💳 {order.payment}
+          </p>
 
-: order.status ===
-"Out For Delivery"
+          <p>
+            ⏰ Scheduled Time:
+            {order.schedule_time}
+          </p>
 
-? "Deliver Order"
+          <p>
+            🕒 Order Time:
+            {order.order_time}
+          </p>
 
-: "Next"
-}
+          <p>
+            📦 Status:
+            {order.status}
+          </p>
 
-</button>
+          <h3>
+            🍽️ Items
+          </h3>
 
-)}
+          {
 
-{
-order.status ===
-"Order Pending" && (
-
-<button
-
-  onClick={() =>
-    deleteOrder(order.id)
-  }
-
-  style={{
-    background:"red",
-    color:"white",
-    border:"none",
-    padding:"10px 18px",
-    borderRadius:"10px",
-    marginTop:"10px",
-    cursor:"pointer"
-  }}
->
-
-🗑 Delete Order
-
-</button>
-
-)}
-
-</div>
-
-</div>
-
-))
-}
-
-  </div>
-
-)}
-{screen === "stockcheck" && (
-
-  <div
-    className="box"
-  >
-
-    <h1
-      style={{
-        color: "orange"
-      }}
-    >
-      📦 STOCK CHECK
-    </h1>
-
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns:
-          "repeat(auto-fit,minmax(250px,1fr))",
-        gap: "20px"
-      }}
-    >
-
-      {menu.flatMap(
-        (category) =>
-          category.items.map(
-            (item, index) => (
+          order.items.map(
+            (item, i) => (
 
               <div
-                key={item.name}
+                key={i}
+
                 style={{
-                  background: "#111",
-                  padding: "15px",
-                  borderRadius: "15px"
+                  marginBottom:"20px",
+                  textAlign:"center"
                 }}
               >
 
                 <img
                   src={item.image}
                   alt=""
-                  style={{
-                    width: "100%",
-                    height: "180px",
-                    objectFit: "cover",
-                    borderRadius: "10px"
-                  }}
+                  className="admin-food-image"
                 />
 
-                <h3>
-                  {item.name}
-                </h3>
+                <p>
+                  🍽️ {item.name}
+                </p>
 
-               
+                <p>
+                  🔢 Quantity:
+                  {item.quantity}
+                </p>
 
               </div>
 
+          ))
+
+          }
+
+          <div
+            style={{
+              marginTop:"20px",
+              display:"flex",
+              gap:"10px",
+              flexWrap:"wrap"
+            }}
+          >
+
+            {
+
+            order.status !==
+            "Delivered" && (
+
+              <button
+
+                onClick={() =>
+                  updateOrderStatus(
+                    order.id,
+                    order.status
+                  )
+                }
+
+                style={{
+
+                  background:
+                    order.status ===
+                    "Order Pending"
+
+                    ? "#ff9800"
+
+                    : order.status ===
+                      "Order Confirmed"
+
+                    ? "#2196f3"
+
+                    : order.status ===
+                      "Order Prepared"
+
+                    ? "#9c27b0"
+
+                    : "#4caf50",
+
+                  color:"white",
+                  border:"none",
+                  padding:"10px",
+                  borderRadius:"8px",
+                  cursor:"pointer",
+                  marginTop:"10px"
+                }}
+              >
+
+                {
+
+                order.status ===
+                "Order Pending"
+
+                ? "Confirm Order"
+
+                : order.status ===
+                  "Order Confirmed"
+
+                ? "Prepare Order"
+
+                : order.status ===
+                  "Order Prepared"
+
+                ? "Out For Delivery"
+
+                : order.status ===
+                  "Out For Delivery"
+
+                ? "Deliver Order"
+
+                : "Next"
+
+                }
+
+              </button>
+
             )
-          )
-      )}
 
-    </div>
+            }
 
-    <button
-      onClick={() =>
-        setScreen("admin")
-      }
-      style={{
-        marginTop: "20px"
-      }}
-    >
-      🔙 Back
-    </button>
+            {
+
+            order.status ===
+            "Order Pending" && (
+
+              <button
+
+                onClick={() =>
+                  deleteOrder(order.id)
+                }
+
+                style={{
+                  background:"red",
+                  color:"white",
+                  border:"none",
+                  padding:"10px 18px",
+                  borderRadius:"10px",
+                  marginTop:"10px",
+                  cursor:"pointer"
+                }}
+              >
+
+                🗑 Delete Order
+
+              </button>
+
+            )
+
+            }
+
+          </div>
+
+        </div>
+
+    ))
+
+    }
 
   </div>
 
 )}
+{
+screen === "stock" && (
+
+<div>
+
+<h1
+style={{
+color:"#ff9800",
+textAlign:"center",
+marginBottom:"30px"
+}}
+>
+📦 Stock Management
+</h1>
+
+<button
+onClick={() =>
+setScreen("admin")
+}
+style={{
+marginBottom:"20px"
+}}
+>
+⬅ Back To Admin
+</button>
+
+<div className="grid">
+
+{
+
+menu.flatMap(
+(section) =>
+section.items
+).map((item, i) => (
+
+<div
+className="card"
+key={i}
+>
+
+<img
+src={item.image}
+alt=""
+/>
+
+<h2>
+{item.name}
+</h2>
+
+<p>
+₹{item.price}
+</p>
+
+<div
+style={{
+marginTop:"15px"
+}}
+>
+
+<select
+
+value={
+stockStatus[item.name] ||
+"In Stock"
+}
+
+onChange={async (e) => {
+
+const newStatus =
+e.target.value;
+
+setStockStatus({
+...stockStatus,
+[item.name]:
+newStatus
+});
+
+const { error } =
+await supabase
+.from("StockStatus")
+.upsert(
+[
+{
+item_name:
+item.name,
+status:
+newStatus
+}
+],
+{
+onConflict:
+"item_name"
+}
+);
+
+if (error) {
+console.log(error);
+}
+
+fetchStockStatus();
+
+}}
+
+style={{
+padding:"10px",
+borderRadius:"10px",
+width:"100%",
+fontWeight:"bold",
+background:
+stockStatus[item.name] ===
+"Out Of Stock"
+? "red"
+: "green",
+color:"white"
+}}
+
+>
+
+<option>
+In Stock
+</option>
+
+<option>
+Out Of Stock
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+))
+}
+
+</div>
+
+</div>
+
+)
+}
 
 {cart.length > 0 &&
 showFloatingCart && (
