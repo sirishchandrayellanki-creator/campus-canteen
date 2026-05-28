@@ -67,7 +67,8 @@ setScheduleTime] =
 useState("");
 const [stockStatus, setStockStatus] =
 useState({});
-
+const [search, setSearch] =
+useState("");
 
 
 
@@ -1172,6 +1173,46 @@ paymentMethod === "PAY AT THE COUNTER"
       </button>
 
     </div>
+    <div
+style={{
+marginBottom:"30px",
+textAlign:"center"
+}}
+>
+
+<input
+
+type="text"
+
+placeholder="🔍 Search Food Item"
+
+value={search}
+
+onChange={(e) =>
+setSearch(e.target.value)
+}
+
+style={{
+
+width:"90%",
+
+maxWidth:"500px",
+
+padding:"15px",
+
+fontSize:"18px",
+
+borderRadius:"12px",
+
+border:"none",
+
+outline:"none"
+
+}}
+
+ />
+
+</div>
 
     {menu.map((section, index) => (
 
@@ -1190,7 +1231,19 @@ paymentMethod === "PAY AT THE COUNTER"
 
           {
 
-          section.items.map((item, i) => (
+          section.items
+
+.filter((item) =>
+
+item.name
+.toLowerCase()
+.includes(
+search.toLowerCase()
+)
+
+)
+
+.map((item, i) => (
 
             <div
               className="card"
