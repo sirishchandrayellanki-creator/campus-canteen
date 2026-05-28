@@ -22,7 +22,7 @@ color:white;
 }
 
 /* =========================================
-   MAIN FOODIE BACKGROUND
+   MAIN BACKGROUND
 ========================================= */
 
 .hero-bg{
@@ -320,201 +320,329 @@ z-index:999;
 
 }
 
-.cart-left{
+/* =========================================
+   SUCCESS SCREEN
+========================================= */
+
+.success-screen{
+
+min-height:100vh;
 
 display:flex;
 
+justify-content:center;
+
 align-items:center;
 
-gap:14px;
-
-}
-
-.cart-left img{
-
-width:56px;
-
-height:56px;
-
-border-radius:14px;
-
-object-fit:cover;
-
-}
-
-.cart-text h3{
-
-margin:0;
-
-color:black;
-
-font-size:18px;
-
-}
-
-.cart-text p{
-
-margin:4px 0 0;
-
-font-size:13px;
-
-color:#555;
-
-}
-
-/* =========================================
-   FLOATING FOOD
-========================================= */
-
-.food{
-
-position:absolute;
-
-font-size:42px;
-
-z-index:2;
-
-filter:
-drop-shadow(0 0 10px rgba(255,120,0,0.4));
-
-animation:
-float 7s ease-in-out infinite,
-rotate 14s linear infinite;
-
-}
-
-.food1{
-top:10%;
-left:8%;
-}
-
-.food2{
-top:20%;
-right:12%;
-}
-
-.food3{
-bottom:15%;
-left:15%;
-}
-
-.food4{
-bottom:12%;
-right:18%;
-}
-
-.food5{
-top:48%;
-left:5%;
-}
-
-.food6{
-top:55%;
-right:6%;
-}
-
-.food7{
-top:8%;
-left:45%;
-}
-
-.food8{
-bottom:5%;
-left:42%;
-}
-
-/* =========================================
-   PARTICLES
-========================================= */
-
-.particle{
-
-position:absolute;
-
-width:8px;
-
-height:8px;
-
-border-radius:50%;
+padding:20px;
 
 background:
-rgba(255,180,0,0.7);
+linear-gradient(
+180deg,
+#000000,
+#050505,
+#101010
+);
 
-box-shadow:
-0 0 12px rgba(255,150,0,0.8),
-0 0 24px rgba(255,90,0,0.5);
+overflow:hidden;
 
-animation:
-particles 8s linear infinite;
+position:relative;
+
+text-align:center;
+
+color:white;
 
 }
 
-.p1{
-top:15%;
-left:25%;
-}
+.success-screen::before{
 
-.p2{
-top:70%;
-left:18%;
-}
-
-.p3{
-top:35%;
-right:15%;
-}
-
-.p4{
-bottom:12%;
-right:30%;
-}
-
-.p5{
-top:50%;
-left:50%;
-}
-
-/* =========================================
-   GLOW EFFECTS
-========================================= */
-
-.glow{
+content:"";
 
 position:absolute;
 
-width:400px;
+top:-100px;
 
-height:400px;
+left:50%;
+
+transform:translateX(-50%);
+
+width:350px;
+
+height:350px;
 
 border-radius:50%;
 
 background:
 radial-gradient(
 circle,
-rgba(255,100,0,0.22),
+rgba(0,255,100,0.25),
 transparent 70%
 );
 
 filter:blur(40px);
 
 animation:
-pulseGlow 6s infinite alternate;
+glowPulse 3s ease-in-out infinite alternate;
 
 }
 
-.glow1{
-top:-120px;
-left:-120px;
+/* SUCCESS BOX */
+
+.success-box{
+
+position:relative;
+
+z-index:2;
+
+width:100%;
+
+max-width:450px;
+
+animation:
+fadeUp 0.8s ease;
+
 }
 
-.glow2{
-bottom:-120px;
-right:-120px;
+/* SUCCESS TICK */
+
+.success-tick{
+
+width:130px;
+
+height:130px;
+
+margin:auto;
+
+border-radius:50%;
+
+background:
+linear-gradient(
+135deg,
+#39d353,
+#28a745
+);
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+font-size:70px;
+
+font-weight:bold;
+
+color:white;
+
+box-shadow:
+0 0 30px rgba(0,255,100,0.35),
+0 0 60px rgba(0,255,100,0.18);
+
+animation:
+tickPop 0.7s ease;
+
+}
+
+/* TITLE */
+
+.success-title{
+
+margin-top:25px;
+
+font-size:48px;
+
+font-weight:700;
+
+line-height:1.2;
+
+}
+
+.success-title span{
+
+display:block;
+
+}
+
+/* STATUS */
+
+.order-status{
+
+margin-top:18px;
+
+font-size:24px;
+
+font-weight:600;
+
+color:#ff9800;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+gap:10px;
+
+}
+
+/* ORDER NUMBER */
+
+.order-number{
+
+margin-top:35px;
+
+font-size:38px;
+
+font-weight:700;
+
+color:#ff9800;
+
+}
+
+/* THANK YOU */
+
+.thank-you{
+
+margin-top:12px;
+
+font-size:22px;
+
+color:#d5d5d5;
+
+line-height:1.6;
+
+}
+
+/* ENJOY */
+
+.enjoy{
+
+margin-top:24px;
+
+font-size:36px;
+
+font-weight:700;
+
+}
+
+/* HOME BUTTON */
+
+.home-btn{
+
+margin-top:42px;
+
+width:100%;
+
+padding:18px;
+
+border:none;
+
+border-radius:20px;
+
+background:
+linear-gradient(
+135deg,
+#ffb300,
+#ff6f00
+);
+
+color:white;
+
+font-size:26px;
+
+font-weight:700;
+
+cursor:pointer;
+
+transition:0.3s;
+
+box-shadow:
+0 10px 30px rgba(255,140,0,0.35);
+
+}
+
+.home-btn:hover{
+
+transform:
+translateY(-4px)
+scale(1.02);
+
+box-shadow:
+0 14px 35px rgba(255,140,0,0.5);
+
 }
 
 /* =========================================
    ANIMATIONS
 ========================================= */
+
+@keyframes tickPop{
+
+0%{
+
+transform:
+scale(0.4);
+
+opacity:0;
+
+}
+
+100%{
+
+transform:
+scale(1);
+
+opacity:1;
+
+}
+
+}
+
+@keyframes fadeUp{
+
+0%{
+
+transform:
+translateY(40px);
+
+opacity:0;
+
+}
+
+100%{
+
+transform:
+translateY(0);
+
+opacity:1;
+
+}
+
+}
+
+@keyframes glowPulse{
+
+0%{
+
+transform:
+translateX(-50%)
+scale(1);
+
+opacity:0.6;
+
+}
+
+100%{
+
+transform:
+translateX(-50%)
+scale(1.15);
+
+opacity:1;
+
+}
+
+}
 
 @keyframes bgMove{
 
@@ -530,63 +658,6 @@ transform:scale(1.03);
 
 }
 
-@keyframes float{
-
-0%,100%{
-transform:translateY(0px);
-}
-
-50%{
-transform:translateY(-25px);
-}
-
-}
-
-@keyframes rotate{
-
-from{
-rotate:0deg;
-}
-
-to{
-rotate:360deg;
-}
-
-}
-
-@keyframes particles{
-
-0%{
-transform:translateY(0px) scale(1);
-opacity:0.2;
-}
-
-50%{
-transform:translateY(-40px) scale(1.6);
-opacity:1;
-}
-
-100%{
-transform:translateY(-80px) scale(0.5);
-opacity:0;
-}
-
-}
-
-@keyframes pulseGlow{
-
-0%{
-transform:scale(1);
-opacity:0.5;
-}
-
-100%{
-transform:scale(1.25);
-opacity:0.9;
-}
-
-}
-
 /* =========================================
    MOBILE VIEW
 ========================================= */
@@ -596,86 +667,6 @@ opacity:0.9;
 .hero-bg{
 animation:none;
 }
-
-/* FLOATING FOOD */
-
-.food{
-
-font-size:22px;
-
-animation:
-floatMobile 4s ease-in-out infinite;
-
-opacity:0.8;
-
-}
-
-.food1{
-top:8%;
-left:5%;
-}
-
-.food2{
-top:15%;
-right:5%;
-}
-
-.food3{
-bottom:20%;
-left:8%;
-}
-
-.food4{
-bottom:12%;
-right:10%;
-}
-
-.food5{
-top:45%;
-left:3%;
-}
-
-.food6{
-top:50%;
-right:3%;
-}
-
-.food7{
-top:5%;
-left:40%;
-}
-
-.food8{
-bottom:5%;
-left:45%;
-}
-
-/* PARTICLES */
-
-.particle{
-
-width:5px;
-height:5px;
-
-animation:
-particlesMobile 5s linear infinite;
-
-}
-
-/* GLOW */
-
-.glow{
-
-width:220px;
-height:220px;
-
-filter:blur(50px);
-
-opacity:0.7;
-
-}
-
-/* GRID */
 
 .grid{
 
@@ -687,8 +678,6 @@ gap:10px;
 padding:10px;
 
 }
-
-/* CARD */
 
 .card{
 
@@ -714,8 +703,6 @@ font-size:12px;
 
 }
 
-/* BUTTON */
-
 button{
 
 font-size:12px;
@@ -724,15 +711,11 @@ padding:8px;
 
 }
 
-/* TOPBAR */
-
 .topbar{
 
 padding:10px;
 
 }
-
-/* CART */
 
 .floating-cart{
 
@@ -744,41 +727,59 @@ border-radius:18px;
 
 }
 
-/* MOBILE FLOAT */
+/* SUCCESS MOBILE */
 
-@keyframes floatMobile{
+.success-tick{
 
-0%,100%{
-transform:translateY(0px);
-}
+width:105px;
 
-50%{
-transform:translateY(-10px);
-}
+height:105px;
+
+font-size:58px;
 
 }
 
-/* MOBILE PARTICLES */
+.success-title{
 
-@keyframes particlesMobile{
+font-size:34px;
 
-0%{
-transform:
-translateY(0px);
+margin-top:20px;
 
-opacity:0;
 }
 
-50%{
-opacity:1;
+.order-status{
+
+font-size:18px;
+
 }
 
-100%{
-transform:
-translateY(-40px);
+.order-number{
 
-opacity:0;
+font-size:28px;
+
+margin-top:24px;
+
 }
+
+.thank-you{
+
+font-size:16px;
+
+}
+
+.enjoy{
+
+font-size:26px;
+
+}
+
+.home-btn{
+
+font-size:18px;
+
+padding:14px;
+
+border-radius:16px;
 
 }
 

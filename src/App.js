@@ -2227,11 +2227,7 @@ opacity:0.8
                 }}
               >
 
-                <img
-                  src={item.image}
-                  alt=""
-                  className="admin-food-image"
-                />
+                
 
                 <p>
                   🍽️ {item.name}
@@ -2413,10 +2409,7 @@ className="card"
 key={i}
 >
 
-<img
-src={item.image}
-alt=""
-/>
+
 
 <h2>
 {item.name}
