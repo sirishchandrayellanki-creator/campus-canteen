@@ -246,56 +246,86 @@ button {
 
 /* Fixed Huge Tick Circle Size */
 .success-tick {
-  width: 130px; 
-  height: 130px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #39d353, #28a745);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 55px;
-  color: white;
-  box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
-  animation: tickPop 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  margin-bottom: 25px;
+
+width: 85px;
+
+height: 85px;
+
+border-radius: 50%;
+
+background: linear-gradient(
+135deg,
+#39d353,
+#28a745
+);
+
+display: flex;
+
+justify-content: center;
+
+align-items: center;
+
+font-size: 38px;
+
+color: white;
+
+box-shadow:
+0 8px 20px rgba(40,167,69,0.25);
+
+animation:
+tickPop 0.7s cubic-bezier(
+0.175,
+0.885,
+0.32,
+1.275
+);
+
+margin-bottom: 18px;
+
 }
 
 .success-title {
-  font-size: 38px;
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 12px;
+
+font-size: 28px;
+
+font-weight: 700;
+
+line-height: 1.2;
+
+margin-bottom: 10px;
+
 }
 
 .order-status {
-  font-size: 20px;
-  font-weight: 600;
-  color: #ff9800;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
+
+font-size: 16px;
+
+margin-bottom: 16px;
+
 }
 
 .order-number {
-  font-size: 32px;
-  font-weight: 700;
-  color: #ff9800;
-  margin-bottom: 12px;
+
+font-size: 24px;
+
+margin-bottom: 10px;
+
 }
 
 .thank-you {
-  font-size: 18px;
-  color: #d5d5d5;
-  line-height: 1.6;
-  margin-bottom: 14px;
+
+font-size: 15px;
+
+margin-bottom: 10px;
+
 }
 
 .enjoy {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 30px;
+
+font-size: 22px;
+
+margin-bottom: 18px;
+
 }
 
 .home-btn {
@@ -360,10 +390,14 @@ button {
     font-size: 28px;
   }
   .success-tick {
-    width: 95px;
-    height: 95px;
-    font-size: 40px;
-  }
+
+width: 70px;
+
+height: 70px;
+
+font-size: 30px;
+
+}
   .success-title { font-size: 28px; }
   .order-status { font-size: 16px; }
   .order-number { font-size: 24px; }
