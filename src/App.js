@@ -937,16 +937,20 @@ paymentMethod === "PAY AT THE COUNTER"
 
    {screen === "adminLogin" && (
 
-  <div className="login-container">
+<div className="auth-page">
 
-    <h1 className="login-title">
-       Admin Login
+  <div className="auth-box">
+
+    <h1>
+      👨‍💼 Admin Login
     </h1>
 
     <input
       type="password"
       placeholder="Enter Admin Password"
+
       value={adminPassword}
+
       onChange={(e) =>
         setAdminPassword(
           e.target.value
@@ -955,7 +959,6 @@ paymentMethod === "PAY AT THE COUNTER"
     />
 
     <button
-      className="login-btn"
 
       onClick={() => {
 
@@ -971,9 +974,11 @@ paymentMethod === "PAY AT THE COUNTER"
           alert(
             "Wrong Password"
           );
+
         }
 
       }}
+
     >
 
       Login
@@ -981,10 +986,16 @@ paymentMethod === "PAY AT THE COUNTER"
     </button>
 
     <button
-      className="admin-btn"
+
+      style={{
+        marginTop:"14px",
+        background:"#222"
+      }}
+
       onClick={() =>
         setScreen("login")
       }
+
     >
 
       🔙 Back
@@ -992,27 +1003,35 @@ paymentMethod === "PAY AT THE COUNTER"
     </button>
 
   </div>
+
+</div>
+
 )}
 
 
 {screen === "login" && (
 
-  <div className="login-container">
+<div className="auth-page">
 
-    <h1 className="login-heading">
-      {isSignup
-        ? "Create Account"
-        : "Login"}
+  <div className="auth-box">
+
+    <h1>
+
+      {
+      isSignup
+      ? "✨ Create Account"
+      : "🍔 Campus Canteen"
+      }
+
     </h1>
 
     {isSignup && (
 
       <input
-        className="login-input"
 
         type="text"
 
-        placeholder="Name"
+        placeholder="Enter Name"
 
         value={userName}
 
@@ -1021,47 +1040,34 @@ paymentMethod === "PAY AT THE COUNTER"
             e.target.value
           )
         }
+
       />
+
     )}
 
-    <div className="login-row">
+    <input
 
-      <input
-        className="login-input"
+      type="text"
 
-        type="text"
+      placeholder="Enter Phone Number"
 
-        placeholder="Phone Number"
+      value={phoneNumber}
 
-        value={phoneNumber}
+      onChange={(e) =>
+        setPhoneNumber(
+          e.target.value
+        )
+      }
 
-        onChange={(e) =>
-          setPhoneNumber(
-            e.target.value
-          )
-        }
-      />
-
-      <button
-        className="login-button"
-
-        onClick={handleUserAuth}
-      >
-
-        Continue
-
-      </button>
-
-    </div>
+    />
 
     {isSignup && (
 
       <input
-        className="login-input"
 
         type="text"
 
-        placeholder="Hall Ticket"
+        placeholder="Enter Hall Ticket"
 
         value={hallTicket}
 
@@ -1070,36 +1076,59 @@ paymentMethod === "PAY AT THE COUNTER"
             e.target.value
           )
         }
+
       />
+
     )}
 
+    <button
+      onClick={handleUserAuth}
+    >
+
+      Continue
+
+    </button>
+
     <p
-      className="signup-text"
+
+      className="signup-switch"
 
       onClick={() =>
         setIsSignup(!isSignup)
       }
+
     >
 
-      {isSignup
-        ? "Already Have Account? Login"
-        : "New User? Signup"}
+      {
+
+      isSignup
+
+      ? "Already Have Account? Login"
+
+      : "New User? Signup"
+
+      }
 
     </p>
 
     <button
-      className="admin-big-btn"
+
+      className="back-btn"
 
       onClick={() =>
         setScreen("adminLogin")
       }
+
     >
 
-      Admin
+      👨‍💼 Admin Login
 
     </button>
 
   </div>
+
+</div>
+
 )}
 
       {screen === "menu" && (
@@ -1477,58 +1506,56 @@ stockStatus[item.name] ===
 
 {screen === "success" && (
 
-  <div className="successPage">
+<div className="success-screen">
 
-    <img
-      src="https://cdn-icons-png.flaticon.com/512/845/845646.png"
-      alt=""
-      className="successImage"
-    />
+  <div className="success-box">
 
-    <h1>
+    <div className="success-tick">
+      ✓
+    </div>
+
+    <h1 className="success-title">
       🎉 Order Placed Successfully
     </h1>
-    <h3
-  style={{
-    color:"#ff9800"
-  }}
->
 
-{
-lastPaymentMethod === "PAY AT THE COUNTER"
-? "🕒 Order Pending"
-: "✅ Order Confirmed"
-}
+    <h3 className="order-status">
 
-</h3>
-    <h2
-  style={{
-    color: "#ff9800",
-    marginTop: "20px"
-  }}
->
-  Order No:
-  {orderNumber}
-</h2>
+      {
+      lastPaymentMethod ===
+      "PAY AT THE COUNTER"
 
-    <p>
-       Thank You For Visiting
-       Campus Canteen
+      ? "🕒 Order Pending"
+
+      : "✅ Order Confirmed"
+      }
+
+    </h3>
+
+    <h2 className="order-number">
+      Order No: #{orderNumber}
+    </h2>
+
+    <p className="thank-you">
+      Thank You For Visiting
+      Campus Canteen
     </p>
 
-    <h2>
+    <h2 className="enjoy">
       🍔🍜 Enjoy Your Meal
     </h2>
 
     <button
+      className="home-btn"
       onClick={() =>
         setScreen("menu")
       }
     >
-    Logout
+      Back To Menu
     </button>
 
   </div>
+
+</div>
 
 )}
 
@@ -2032,59 +2059,63 @@ opacity:0.8
 
       {screen === "admin" && (
 
-  <div className="box">
+<div className="auth-page">
+
+  <div className="cart-box">
 
     {/* TOP BUTTONS */}
 
-    <div
-      style={{
-        display:"flex",
-        gap:"15px",
-        flexWrap:"wrap",
-        marginBottom:"20px"
-      }}
-    >
+    <div className="top-admin-buttons">
 
       <button
+
+        className="place-order-btn"
+
         onClick={() => {
 
           setAdminPassword("");
           setScreen("login");
 
         }}
+
       >
+
         🚪 Logout
+
       </button>
 
       <button
+
+        className="place-order-btn"
+
         onClick={() =>
           setScreen("stock")
         }
+
       >
+
         📦 Stock Management
+
       </button>
 
     </div>
 
     {/* TITLE */}
 
-    <h1>
+    <h1 className="cart-title">
       ⚙️ Admin Panel
     </h1>
 
     {/* UPI SECTION */}
 
-    <div
-      style={{
-        marginTop: "40px"
-      }}
-    >
+    <div className="admin-section">
 
-      <h2>
+      <h2 className="schedule-title">
         💳 Change UPI ID
       </h2>
 
       <input
+
         type="text"
 
         value={upiId}
@@ -2096,9 +2127,14 @@ opacity:0.8
         }
 
         placeholder="Enter New UPI ID"
+
+        className="schedule-input"
+
       />
 
       <button
+
+        className="place-order-btn"
 
         onClick={() => {
 
@@ -2121,14 +2157,17 @@ opacity:0.8
 
     </div>
 
-    {/* ORDERS SECTION */}
+    {/* ORDERS */}
 
     <h2
+      className="schedule-title"
       style={{
-        marginTop: "40px"
+        marginTop:"40px"
       }}
     >
+
       📦 Orders
+
     </h2>
 
     {
@@ -2141,15 +2180,8 @@ opacity:0.8
           deleteAllOrders
         }
 
-        style={{
-          background: "red",
-          color: "white",
-          border: "none",
-          padding: "12px 20px",
-          borderRadius: "10px",
-          marginBottom: "20px",
-          cursor: "pointer"
-        }}
+        className="delete-all-btn"
+
       >
 
         🗑 Delete All Orders
@@ -2164,8 +2196,15 @@ opacity:0.8
 
     orders.length === 0 && (
 
-      <p>
+      <p
+        style={{
+          textAlign:"center",
+          marginTop:"20px"
+        }}
+      >
+
         No Orders Yet
+
       </p>
 
     )
@@ -2179,7 +2218,7 @@ opacity:0.8
 
         <div
           key={index}
-          className="order"
+          className="admin-order-card"
         >
 
           <h3>
@@ -2219,7 +2258,11 @@ opacity:0.8
             {order.status}
           </p>
 
-          <h3>
+          <h3
+            style={{
+              marginTop:"18px"
+            }}
+          >
             🍽️ Items
           </h3>
 
@@ -2230,14 +2273,8 @@ opacity:0.8
 
               <div
                 key={i}
-
-                style={{
-                  marginBottom:"20px",
-                  textAlign:"center"
-                }}
+                className="admin-item"
               >
-
-                
 
                 <p>
                   🍽️ {item.name}
@@ -2254,14 +2291,7 @@ opacity:0.8
 
           }
 
-          <div
-            style={{
-              marginTop:"20px",
-              display:"flex",
-              gap:"10px",
-              flexWrap:"wrap"
-            }}
-          >
+          <div className="admin-btns">
 
             {
 
@@ -2270,6 +2300,8 @@ opacity:0.8
 
               <button
 
+                className="status-btn"
+
                 onClick={() =>
                   updateOrderStatus(
                     order.id,
@@ -2277,33 +2309,6 @@ opacity:0.8
                   )
                 }
 
-                style={{
-
-                  background:
-                    order.status ===
-                    "Order Pending"
-
-                    ? "#ff9800"
-
-                    : order.status ===
-                      "Order Confirmed"
-
-                    ? "#2196f3"
-
-                    : order.status ===
-                      "Order Prepared"
-
-                    ? "#9c27b0"
-
-                    : "#4caf50",
-
-                  color:"white",
-                  border:"none",
-                  padding:"10px",
-                  borderRadius:"8px",
-                  cursor:"pointer",
-                  marginTop:"10px"
-                }}
               >
 
                 {
@@ -2345,19 +2350,12 @@ opacity:0.8
 
               <button
 
+                className="delete-btn"
+
                 onClick={() =>
                   deleteOrder(order.id)
                 }
 
-                style={{
-                  background:"red",
-                  color:"white",
-                  border:"none",
-                  padding:"10px 18px",
-                  borderRadius:"10px",
-                  marginTop:"10px",
-                  cursor:"pointer"
-                }}
               >
 
                 🗑 Delete Order
@@ -2377,6 +2375,8 @@ opacity:0.8
     }
 
   </div>
+
+</div>
 
 )}
 {
