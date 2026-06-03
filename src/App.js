@@ -1137,133 +1137,76 @@ paymentMethod === "PAY AT THE COUNTER"
 
   <div>
 
-    <div
-      style={{
-        textAlign: "center",
-        marginBottom: "30px"
-      }}
-    >
+   <div className="welcome-box">
 
-      <h1
-        style={{
-          fontSize: "45px",
-          color: "white"
-        }}
-      >
-        👋 Welcome {userName} 🎉
-      </h1>
+  <h1>
+    👋 Welcome, {userName}
+  </h1>
 
-      <h2
-        style={{
-          color: "#ff9800",
-          fontSize: "35px"
-        }}
-      >
-        🍔 Campus Canteen 🍜
-      </h2>
-
-    </div>
-
-    <div
-      style={{
-        display: "flex",
-        gap: "15px",
-        flexWrap: "wrap",
-        marginBottom: "20px"
-      }}
-    >
-
-      <button
-        onClick={logoutUser}
-      >
-        🚪 Logout
-      </button>
-
-      <button
-        onClick={() =>
-          setScreen("cart")
-        }
-      >
-        🛒 Cart (
-        {
-          cart.reduce(
-            (total, item) =>
-              total + item.quantity,
-            0
-          )
-        }
-        )
-      </button>
-
-      <button
-        onClick={() =>
-          setScreen("orders")
-        }
-      >
-        📦 My Orders
-      </button>
-
-    </div>
-    <div
-style={{
-marginBottom:"30px",
-textAlign:"center"
-}}
->
-
-<div
-style={{
-position:"relative",
-display:"inline-block",
-width:"90%",
-maxWidth:"500px"
-}}
->
-
-<span
-style={{
-position:"absolute",
-left:"15px",
-top:"50%",
-transform:"translateY(-50%)",
-fontSize:"24px",
-zIndex:"1"
-}}
->
-🔍
-</span>
-
-<input
-
-type="text"
-
-placeholder="Search Food Item"
-
-value={search}
-
-onChange={(e) =>
-setSearch(e.target.value)
-}
-
-style={{
-
-width:"100%",
-
-padding:"15px 15px 15px 55px",
-
-fontSize:"18px",
-
-borderRadius:"12px",
-
-border:"none",
-
-outline:"none"
-
-}}
-
- />
+  <p>
+    Fresh Food • Fast Delivery • Campus Special
+  </p>
 
 </div>
+
+   <div className="menu-buttons">
+
+  <button
+    className="premium-nav-btn logout-btn"
+    onClick={logoutUser}
+  >
+    🚪 Logout
+  </button>
+
+  <button
+    className="premium-nav-btn cart-btn"
+    onClick={() =>
+      setScreen("cart")
+    }
+  >
+    🛒 Cart (
+    {
+      cart.reduce(
+        (total,item)=>
+          total + item.quantity,
+        0
+      )
+    }
+    )
+  </button>
+
+  <button
+    className="premium-nav-btn orders-btn"
+    onClick={() =>
+      setScreen("orders")
+    }
+  >
+    📦 My Orders
+  </button>
+
+</div>
+
+<div
+className="premium-search-container"
+>
+
+  <span
+  className="search-icon"
+  >
+    🔍
+  </span>
+
+  <input
+    type="text"
+    placeholder="Search Food Item..."
+    value={search}
+    onChange={(e)=>
+      setSearch(
+        e.target.value
+      )
+    }
+    className="premium-search"
+  />
 
 </div>
 
@@ -1283,12 +1226,7 @@ search.toLowerCase()
 
 ) && (
 
-<h1
-style={{
-color: "#ff9800",
-marginTop: "40px"
-}}
->
+<h1 className="category-heading">
 🍽️ {section.category}
 </h1>
 
@@ -1313,10 +1251,10 @@ search.toLowerCase()
 
 .map((item, i) => (
 
-            <div
-              className="card"
-              key={i}
-            >
+           <div
+className="premium-card"
+key={i}
+>
 
               <img
                 src={item.image}
