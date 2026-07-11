@@ -1,7 +1,16 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import { supabase }
-from "./supabase";
+import { db } from "./firebase";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  setDoc,
+  onSnapshot,
+  doc
+} from "firebase/firestore";
 import Friedrice from "./images/Friedrice.jpeg";
 import ChickenRice from "./images/ChickenRice.jpeg";
 import EggRice from "./images/EggRice.jpeg";
@@ -79,91 +88,55 @@ useState("");
 
 const fetchOrders =
 async () => {
-
-  const {
-    data,
-    error
-  } = await supabase
-    .from("Orders")
-    .select("*")
-    .order("id", {
-      ascending: false
-    });
-
-  if (error) {
-
+  try {
+    const snapshot =
+      await getDocs(
+        collection(db, "Orders")
+      );
+    const data =
+      snapshot.docs.map(
+        (d) => ({ id: d.id, ...d.data() })
+      );
+    setOrders(data);
+  } catch (error) {
     console.log(error);
-
-    return;
   }
-
-  setOrders(data || []);
 };
 const fetchStockStatus =
 async () => {
-
-const { data, error } =
-await supabase
-.from("StockStatus")
-.select("*");
-
-if (error) {
-console.log(error);
-return;
-}
-
-const updated = {};
-
-for (const item of data) {
-
-updated[item.item_name] =
-item.status;
-
-}
-
-console.log(updated);
-
-setStockStatus(updated);
-
+  try {
+    const snapshot =
+      await getDocs(
+        collection(db, "StockStatus")
+      );
+    const updated = {};
+    snapshot.docs.forEach((d) => {
+      const item = d.data();
+      updated[item.item_name] =
+        item.status;
+    });
+    setStockStatus(updated);
+  } catch (error) {
+    console.log(error);
+  }
 };
 const updateOrderStatus = async (id, currentStatus) => {
-
   let nextStatus = "";
+  if (currentStatus === "Order Pending") nextStatus = "Order Confirmed";
+  else if (currentStatus === "Order Confirmed") nextStatus = "Order Prepared";
+  else if (currentStatus === "Order Prepared") nextStatus = "Out For Delivery";
+  else if (currentStatus === "Out For Delivery") nextStatus = "Delivered";
+  else return;
 
-  // CASH FLOW
-  if (currentStatus === "Order Pending") {
-    nextStatus = "Order Confirmed";
-  }
-
-  else if (currentStatus === "Order Confirmed") {
-    nextStatus = "Order Prepared";
-  }
-
-  else if (currentStatus === "Order Prepared") {
-    nextStatus = "Out For Delivery";
-  }
-
-  else if (currentStatus === "Out For Delivery") {
-    nextStatus = "Delivered";
-  }
-
-  else {
-    return;
-  }
-
-  const { error } = await supabase
-    .from("Orders")
-    .update({
-      status: nextStatus
-    })
-    .eq("id", id);
-
-  if (error) {
+  try {
+    await updateDoc(
+      doc(db, "Orders", id),
+      { status: nextStatus }
+    );
+    fetchOrders();
+  } catch (error) {
     console.log(error);
-    return;
   }
-
-  fetchOrders();
 };
 
 
@@ -172,42 +145,33 @@ const updateOrderStatus = async (id, currentStatus) => {
 
 const deleteOrder =
 async (id) => {
-
-  const { error } =
-    await supabase
-      .from("Orders")
-      .update({
-        status:"Cancelled"
-      })
-      .eq("id", id);
-
-  if (error) {
-
+  try {
+    await updateDoc(
+      doc(db, "Orders", id),
+      { status: "Cancelled" }
+    );
+    fetchOrders();
+  } catch (error) {
     console.log(error);
-
-    return;
   }
-
-  fetchOrders();
 };
 
 const deleteAllOrders =
 async () => {
-
-  const { error } =
-    await supabase
-      .from("Orders")
-      .delete()
-      .neq("id", 0);
-
-  if (error) {
-
+  try {
+    const snapshot =
+      await getDocs(
+        collection(db, "Orders")
+      );
+    const deletePromises =
+      snapshot.docs.map((d) =>
+        deleteDoc(doc(db, "Orders", d.id))
+      );
+    await Promise.all(deletePromises);
+    fetchOrders();
+  } catch (error) {
     console.log(error);
-
-    return;
   }
-
-  fetchOrders();
 };
 
   useEffect(() => {
@@ -215,75 +179,79 @@ async () => {
   fetchOrders();
   fetchStockStatus();
 
-  const liveOrders =
-  setInterval(() => {
+  // Real-time orders listener
+  const unsubscribeOrders =
+    onSnapshot(
+      collection(db, "Orders"),
+      (snapshot) => {
+        const data =
+          snapshot.docs.map(
+            (d) => ({ id: d.id, ...d.data() })
+          );
+        setOrders(data);
+      }
+    );
 
-    fetchOrders();
-
-  }, 5000);
-
-  const liveStock =
-  setInterval(() => {
-
-    fetchStockStatus();
-
-  }, 3000);
+  // Real-time stock listener
+  const unsubscribeStock =
+    onSnapshot(
+      collection(db, "StockStatus"),
+      (snapshot) => {
+        const updated = {};
+        snapshot.docs.forEach((d) => {
+          const item = d.data();
+          updated[item.item_name] =
+            item.status;
+        });
+        setStockStatus(updated);
+      }
+    );
 
   const checkSchedule =
     setInterval(async () => {
+      try {
+        const snapshot =
+          await getDocs(
+            collection(db, "Orders")
+          );
+        const savedOrders =
+          snapshot.docs.map(
+            (d) => ({ id: d.id, ...d.data() })
+          );
+        const now = new Date();
 
-      const { data } =
-        await supabase
-          .from("Orders")
-          .select("*");
-
-      const savedOrders =
-        data || [];
-
-      const now = new Date();
-
-      for (const order of savedOrders) {
-
-        if (
-          order.schedule_time !==
-          "Instant Order" &&
-          !order.processed
-        ) {
-
-          const orderTime =
-            new Date(
-              order.schedule_time
-            );
-
-          if (now >= orderTime) {
-
-            await supabase
-              .from("Orders")
-              .update({
-                status:
-order.payment === "PAY AT THE COUNTER"
-? "Order Pending"
-: "Order Confirmed",
-
-                processed: true
-              })
-              .eq("id", order.id);
+        for (const order of savedOrders) {
+          if (
+            order.schedule_time !==
+            "Instant Order" &&
+            !order.processed
+          ) {
+            const orderTime =
+              new Date(order.schedule_time);
+            if (now >= orderTime) {
+              await updateDoc(
+                doc(db, "Orders", order.id),
+                {
+                  status:
+                    order.payment ===
+                    "PAY AT THE COUNTER"
+                      ? "Order Pending"
+                      : "Order Confirmed",
+                  processed: true
+                }
+              );
+            }
           }
         }
+      } catch (error) {
+        console.log(error);
       }
-
-      fetchOrders();
-
     }, 60000);
 
   return () => {
-
+    unsubscribeOrders();
+    unsubscribeStock();
     clearInterval(checkSchedule);
-
-    clearInterval(liveOrders);
-
-    clearInterval(liveStock);
-
   };
 
 }, []);
@@ -790,20 +758,17 @@ paymentMethod === "PAY AT THE COUNTER"
       scheduled
   };
 
-  const { error } =
-  
-    await supabase
-      .from("Orders")
-      .insert([newOrder]);
-
-  if (error) {
-
-    console.log(error);
-
-    alert(
-      JSON.stringify(error)
+  try {
+    await addDoc(
+      collection(db, "Orders"),
+      newOrder
     );
-
+  } catch (err) {
+    console.log(err);
+    alert(
+      "❌ Order failed: " +
+      err.message
+    );
     return;
   }
 
@@ -2321,29 +2286,18 @@ setStockStatus({
 newStatus
 });
 
-const { error } =
-await supabase
-.from("StockStatus")
-.upsert(
-[
-{
-item_name:
-item.name,
-status:
-newStatus
+try {
+  await setDoc(
+    doc(db, "StockStatus", item.name),
+    {
+      item_name: item.name,
+      status: newStatus
+    }
+  );
+  fetchStockStatus();
+} catch (error) {
+  console.log(error);
 }
-],
-{
-onConflict:
-"item_name"
-}
-);
-
-if (error) {
-console.log(error);
-}
-
-fetchStockStatus();
 
 }}
 
